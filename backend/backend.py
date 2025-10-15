@@ -89,7 +89,7 @@ async def main():
     host = os.getenv("HOST", "0.0.0.0")  # neccesary for GitHub deployment
     
     async with websockets.serve(handler, host, port, max_size=10_000_000):
-    log.info(f"WS-server listening on ws://{host}:{port}")
+        log.info(f"WS-server listening on ws://{host}:{port}") # requested by "Render" tab
 
     async with websockets.serve(handler, "localhost", 8765, max_size=10_000_000):
         log.info("WS-server listening on ws://localhost:8765")
