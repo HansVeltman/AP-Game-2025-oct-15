@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <title>WS → PNG demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+  </head>
+  <body>
+
+  <header class="site-header">
+      <div class="header-left">
+        <a href="#" class="logo" aria-label="Ga naar start">
+          <img src="assets/logo.png" alt="Logo The Alignment Puzzle">
+        </a>
+      </div>
+
+      <nav class="header-center" aria-label="Hoofdmenu">
+        <ul class="menu">
+          <li class="menu-item">
+            <button class="menu-button" aria-haspopup="true" aria-expanded="false">👤 User</button>
+            <ul class="submenu" aria-label="User submenu">
+              <li><a href="#"><span>📜</span>policy: view</a></li>
+              <li><a href="#"><span>📝</span>policy: define</a></li>
+              <li><a href="#"><span>⚡</span>decide now!</a></li>
+              <li><a href="#"><span>📊</span>report: activity</a></li>
+              <li><a href="#"><span>📈</span>report: company</a></li>
+              <li><a href="#"><span>🎯</span>report: game</a></li>
+            </ul>
+          </li>
+
+          <li class="menu-item">
+            <button class="menu-button" aria-haspopup="true" aria-expanded="false">🛠️ Administrators</button>
+            <ul class="submenu" aria-label="Administrators submenu">
+              <li><a href="#"><span>⚙️</span>define: game</a></li>
+              <li><a href="#"><span>🏭</span>define: companies</a></li>
+              <li><a href="#" id="run-day">  <span>▶️</span>run: day</a></li>
+              <li><a href="#" id="run-week"> <span>⏩</span>run: week</a></li>
+              <li><a href="#" id="run-month"><span>➡️</span>run: month</a></li>
+              <li><a href="#" id="run-year"> <span>⏭️</span>run: year</a></li>
+              <li><a href="#" id="Resetsim"> <span>↩️</span>Reset simulation</a></li>
+              <li><a href="#"><span>🚨</span>active disruptive event</a></li>
+            </ul>
+          </li>
+
+          <li class="menu-item">
+            <button class="menu-button" aria-haspopup="true" aria-expanded="false">❓ Help</button>
+            <ul class="submenu" aria-label="Help submenu">
+              <li><a href="#"><span>🚀</span>getting-started</a></li>
+              <li><a href="#"><span>🆘</span>help</a></li>
+              <li><a href="#"><img src="assets/APicoontje.png" alt="The Alignment Puzzle" class="menu-icon" /> about The Alignment Puzzle </a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-right">
+        <img src="assets/UserInfo.png" alt="Gebruikersinformatie" class="userinfo" />
+      </div>
+    </header>
+
+    <script>  // MENU SCRIPT accessible toggle for dropdowns (supports keyboard)
+      document.querySelectorAll('.menu-item').forEach(function(item) {
+        const btn = item.querySelector('.menu-button');
+        btn.addEventListener('click', function(e) {
+          const open = item.classList.toggle('open');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          // close siblings
+          document.querySelectorAll('.menu-item').forEach(function(other) {
+            if (other !== item) {
+              other.classList.remove('open');
+              const b = other.querySelector('.menu-button');
+              if (b) b.setAttribute('aria-expanded', 'false');
+            }
+          });
+        });
+        // close on escape
+        item.addEventListener('keydown', function(e){
+          if (e.key === 'Escape') {
+            item.classList.remove('open');
+            btn.setAttribute('aria-expanded','false');
+            btn.focus();
+          }
+        });
+      });
+        // close menu when clicking outside
+      document.addEventListener('click', function(e){
+        if (!e.target.closest('.menu')) {
+          document.querySelectorAll('.menu-item').forEach(function(i){
+            i.classList.remove('open');
+            const b = i.querySelector('.menu-button');
+            if (b) b.setAttribute('aria-expanded','false');
+          });
+        }
+      }); // END MENU SCRIPT
+    </script>   
+
+    <h3> Management Game AlignmentPuzzle... (not started yet) </h3>
+
+    <!-- <img id="TheMainArea" alt="(nog niets ontvangen)" /> -->
+    <canvas id="TheMainArea" width="1200" height="700" aria-label="Hoofdweergave"></canvas>
+    <div id="PuzzleDock" class="menu" aria-label="De Alignment Puzzle"></div>
+    
+    <div id="status">Verbinding maken…</div>
+    <h3>Berichten</h3>
+    <pre id="log"></pre>
+
+    <script src="addpuzzle.js"></script>
+    <script src="DrawCanvas.js"></script>
+    <script src="app.js"></script>
+
+  </body>
+</html>

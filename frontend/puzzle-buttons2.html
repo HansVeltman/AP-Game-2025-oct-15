@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html><head>    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style type="text/css">
+	.puzzle-wrapper {width:200px; height:202px; line-height:1; /*width and height should be 1:1. Fine-tune from there*/
+	 position:relative; border-sizing:border-box; background:#FFF; border:2px solid #FFF; font-family: system-ui, Roboto, Arial, sans-serif; font-size: 14px}
+	/* .puzzle-wrapper.puzzle-complete {box-shadow:5px 5px 0 rgba(121,110,89,.75);}
+	.puzzle-button {text-decoration:none;}
+
+/*puzzle pieces placement*/
+	.puzzle-button {position:absolute;}
+	.puzzle-button .logo-puzzle-letter, .puzzle-button .logo-puzzle-text {position:absolute; display:block; text-align:center; color:#FFF;}
+	.puzzle-button .logo-puzzle-letter {font-size: 270%; opacity:.3;}
+	.puzzle-button .logo-puzzle-text {font-size: 100%; letter-spacing:.03rem;}
+	.puzzle-button.strategy, .puzzle-button.process, .puzzle-button.organization, .puzzle-button.information {width:54.066%;}
+	.puzzle-button.strategy svg, .puzzle-button.process svg, .puzzle-button.control, .puzzle-button.control svg, 
+		.puzzle-button.organization svg, .puzzle-button.information svg {width:100%; height:auto;}
+	.puzzle-button.strategy {left:0; top:0;}
+	.puzzle-button.strategy .logo-puzzle-letter {width:90%; left:0; top:10%;}
+	.puzzle-button.strategy .logo-puzzle-text {width:90%; left:0; top:31%;}
+	.puzzle-button.process {left:45.933%; top:0;}
+	.puzzle-button.process .logo-puzzle-letter {width:90%; left:10%; top:10%;}
+	.puzzle-button.process .logo-puzzle-text {width:90%; left:10%; top:31%;}
+	.puzzle-button.control {left:0; top:33.4%;}
+	.puzzle-button.control .logo-puzzle-letter {width:100%; left:0; top:13%;}
+	.puzzle-button.control .logo-puzzle-text {width:100%; left:0; top:31%;}
+	.puzzle-button.organization {left:0; top:66.9%;}
+	.puzzle-button.organization .logo-puzzle-letter {width:90%; left:0; top:20%;}
+	.puzzle-button.organization .logo-puzzle-text {width:85%; left:0; top:41%; letter-spacing:.01em;}
+	.puzzle-button.information {left:45.933%; top:66.9%;}
+	.puzzle-button.information .logo-puzzle-letter {width:85%; left:10%; top:20%;}
+	.puzzle-button.information .logo-puzzle-text {width:85%; left:15%; top:41%;}
+
+/*puzzle pieces colors & rollover*/
+	.puzzle-button .bg {}
+	.puzzle-button.strategy .bg {fill:#71B02C;}
+	.puzzle-button.strategy:hover .bg {fill:#51900C;}
+	.puzzle-button.process .bg {fill:#243B7D;}
+	.puzzle-button.process:hover .bg {fill:#041B5D;}
+	.puzzle-button.control .bg {fill:#009FE3;}
+	.puzzle-button.control:hover .bg {fill:#007FC3;}
+	.puzzle-button.organization .bg {fill:#E30613;}
+	.puzzle-button.organization:hover .bg {fill:#C30603;}
+	.puzzle-button.information .bg {fill:#41C0F0;}
+	.puzzle-button.information:hover .bg {fill:#11A0E0;}
+
+</style>
+
+</head>
+<body style="background:#CCC;">
+
+<div class="puzzle-wrapper puzzle-complete">
+	<a href="#" class="puzzle-button strategy">
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="73.666px" height="53.191px" viewBox="0 0 73.666 53.191" enable-background="new 0 0 73.666 53.191" xml:space="preserve" alt="Strategy">
+<polygon class="bg" points="21.156,53.191 27.424,44.943 67.785,44.943 67.785,29.033 60.747,22.096 73.666,22.098 
+		67.785,16.217 67.785,0 0,0.001 0,44.944 14.887,44.944 	"/>
+</svg>
+<span class="logo-puzzle-letter">S</span>
+<span class="logo-puzzle-text">Strategy</span>
+	</a>
+
+	<a href="#" class="puzzle-button process">
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="73.77px" height="53.192px" viewBox="0 0 73.77 53.192" enable-background="new 0 0 73.77 53.192" xml:space="preserve" alt="Process">
+<polygon class="bg" points="5.985,44.945 46.277,44.945 52.547,53.192 58.814,44.945 73.77,44.944 73.77,0 5.985,0 
+		5.985,15.912 12.908,22.837 0,22.835 5.938,28.774 	"/>
+</svg>
+<span class="logo-puzzle-letter">P</span>
+<span class="logo-puzzle-text">Process</span>
+	</a>
+
+	<a href="#" class="puzzle-button control">
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="136.309px" height="53.184px" viewBox="0 0 136.309 53.184" enable-background="new 0 0 136.309 53.184" xml:space="preserve" alt="Control">
+<polygon class="bg" points="33.207,53.184 39.469,44.945 96.154,44.945 102.415,53.184 108.677,44.945 136.308,44.945 
+		136.309,0 121.719,0.001 115.084,8.732 108.451,0.001 27.791,0.002 21.156,8.732 14.52,0.001 0.001,0.001 0,44.945 26.945,44.945 	
+		"/>
+</svg>
+<span class="logo-puzzle-letter">C</span>
+<span class="logo-puzzle-text">Control</span>
+	</a>
+
+	<a href="#" class="puzzle-button organization">
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="73.675px" height="44.943px" viewBox="0 0 73.675 44.943" enable-background="new 0 0 73.675 44.943" xml:space="preserve" alt="Organization">
+<polygon class="bg" points="62.861,22.836 62.87,22.842 60.605,22.846 61.404,22.199 67.737,15.865 67.783,0 39.833,0 
+		33.205,8.723 26.578,0 0,0 0,44.943 67.784,44.943 67.784,28.727 73.675,22.836 	"/>
+</svg>
+<span class="logo-puzzle-letter">O</span>
+<span class="logo-puzzle-text">Organization</span>
+	</a>
+
+	<a href="#" class="puzzle-button information">
+
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="73.75px" height="44.943px" viewBox="0 0 73.75 44.943" enable-background="new 0 0 73.75 44.943" xml:space="preserve" alt="Information">
+	<polygon class="bg" points="12.899,22.098 5.965,29.035 5.965,44.943 73.75,44.943 73.75,0 46.484,0 39.858,8.723 33.23,0 
+		5.965,0 5.965,16.219 0,22.098 	"/>
+</svg>
+<span class="logo-puzzle-letter">I</span>
+<span class="logo-puzzle-text">Information</span>
+	</a>
+
+</div>
+
+</body>
+</html>

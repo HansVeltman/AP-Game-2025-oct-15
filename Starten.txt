@@ -1,0 +1,9 @@
+pip install websockets
+
+cd backend
+python backend.py
+
+cd frontend
+python -m http.server 8030
+
+http://localhost:8030
