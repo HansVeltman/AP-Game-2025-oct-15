@@ -3,6 +3,14 @@ from pathlib import Path
 from websockets.server import WebSocketServerProtocol
 from protocol import Message, MessageType
 from handlers import registry # mapping: MessageType -> callable
+import os  # neccesary for GitHub deployment
+
+# in main():
+port = int(os.getenv("PORT", "8765"))
+host = os.getenv("HOST", "0.0.0.0")
+async with websockets.serve(handler, host, port, max_size=10_000_000):
+    log.info(f"WS-server listening on ws://{host}:{port}")
+
 
 ASSETS_DIR = Path(__file__).parent / "assets"
 
@@ -77,6 +85,12 @@ async def handler(ws: WebSocketServerProtocol):
         log.exception("Unhandled error for %s", peer)
 
 async def main():
+    port = int(os.getenv("PORT", "8765")) # neccesary for GitHub deployment
+    host = os.getenv("HOST", "0.0.0.0")  # neccesary for GitHub deployment
+    
+    async with websockets.serve(handler, host, port, max_size=10_000_000):
+    log.info(f"WS-server listening on ws://{host}:{port}")
+
     async with websockets.serve(handler, "localhost", 8765, max_size=10_000_000):
         log.info("WS-server listening on ws://localhost:8765")
         try:
