@@ -2,7 +2,7 @@
 import asyncio
 import logging
 import os
-from typing import Union
+from typing import Optional, Tuple, List
 
 import websockets
 from websockets.server import WebSocketServerProtocol
@@ -43,15 +43,25 @@ async def handler(ws: WebSocketServerProtocol):
     finally:
         log.info("client disconnected: %s", ws.remote_address)
 
-# ---------- main entry ----------
+async def process_request(path: str, request_headers) -> Optional[Tuple[int, List[Tuple[str, str]], bytes]]:
+    if path in ("/", "/healthz"):
+        body = (b"OK" if path == "/healthz"
+                else b"Alignment WebSocket server. Connect with a WebSocket client.")
+        headers = [("Content-Type", "text/plain; charset=utf-8"),
+                   ("Content-Length", str(len(body))),
+                   ("Cache-Control", "no-cache")]
+        return (200, headers, body)
+    return None  # anders: laat de WS-upgrade doorgaan
+
 async def main():
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8765"))
-    # Start server binnen een async context
-    async with websockets.serve(handler, host, port, max_size=10_000_000):
-        log.info("WS-server listening on ws://%s:%s", host, port)
-        # Houd de server draaiend
-        await asyncio.Future()  # runs forever
+    server = await websockets.serve(
+        handler, host, port, max_size=10_000_000, process_request=process_request
+    )
+    log.info("WS-server listening on ws://%s:%s", host, port)
+    await server.wait_closed()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
