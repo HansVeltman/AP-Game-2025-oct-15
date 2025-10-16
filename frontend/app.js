@@ -154,27 +154,9 @@
     } catch {}
   }});
 
-  let debugImg = document.getElementById('debug-asset');
-  if (!debugImg) {
-    debugImg = document.createElement('img');
-    debugImg.id = 'debug-asset';
-    debugImg.style.position = 'fixed';
-    debugImg.style.right = '8px';
-    debugImg.style.bottom = '8px';
-    debugImg.style.width = '200px';
-    debugImg.style.border = '2px solid #0aa';
-    debugImg.style.background = '#fff';
-    debugImg.style.zIndex = '99999';
-    document.body.appendChild(debugImg);
-  }
-
 async function drawAssetOnCanvas(name) {
   try {
     const url = await fetchAssetAsObjectURL(name);
-
-    // 1) debug: laat het beeld als <img> zien (dan weet je dat de Blob correct is)
-    debugImg.src = url;
-    console.log('DEBUG preview gezet voor', name);
 
     // 2) canvas tekenen
     const img = await new Promise((resolve, reject) => {
@@ -220,7 +202,7 @@ async function drawAssetOnCanvas(name) {
   // Na ws.open aanroepen:
   ws.addEventListener('open', () => {
     console.log('WS open, nu Start.png via WS ophalen…');
-    drawAssetOnCanvas('Start.png');  // <- zorg dat deze functie bestaat (zie hieronder)
+    // drawAssetOnCanvas('Start.png');  // <- zorg dat deze functie bestaat (zie hieronder)
     setLogoFromWS();
   });
 
