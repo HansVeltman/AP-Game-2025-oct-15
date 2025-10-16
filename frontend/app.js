@@ -161,7 +161,41 @@
   // ====== demo: ping bij open ======
   ws.addEventListener('open', () => {
     ws.send(JSON.stringify({ type: 'ping' }));
+    console.log('WS open, nu Start.png via WS ophalen…');
+    drawAssetOnCanvas('Start.png');  // <- dit doet de WS-aanvraag
   });
+
+  ws.addEventListener('message', (e) => {
+  if (typeof e.data === 'string') {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'asset') {
+        console.log('WS asset ontvangen:', msg.name, msg.mime, (msg.data_b64 || '').length, 'bytes(b64)');
+      }
+    } catch {}
+  }});
+
+
+  async function setLogoFromWS() {
+    try {
+      const url = await fetchAssetAsObjectURL('logo.png'); // moet bestaan in backend/assets/logo.png
+      const logoEl = document.querySelector('.logo');
+      if (logoEl) {
+        logoEl.src = url;
+        console.log('Logo via WS gezet');
+      } else {
+        console.warn('Geen .logo element gevonden');
+      }
+    } catch (e) {
+      console.error('Logo via WS laden faalde:', e);
+    }
+  }
+
+  // start ‘m zodra WS open is (of na Start.png tekenen):
+  ws.addEventListener('open', () => {
+    setLogoFromWS();
+  });
+
 
   // ====== Admin knoppen (indien aanwezig in DOM) ======
   function bindClick(id, days, label) {
