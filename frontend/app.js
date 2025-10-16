@@ -193,42 +193,36 @@ async function drawAssetOnCanvas(name) {
     } 
   }   
 
-async function setLogoFromWS() {
-  try {
-    const url = await fetchAssetAsObjectURL('logo.png');
+  async function setLogoFromWS() {
+    try {
+      const url = await fetchAssetAsObjectURL('logo.png'); // komt uit backend/assets/logo.png
 
-    let logoEl = document.querySelector('.logo');
-    if (!logoEl) {
-      // maak 'm als hij niet bestaat
-      logoEl = document.createElement('img');
-      logoEl.className = 'logo';
-      document.body.prepend(logoEl);
+      // Pak het echte IMG-element, niet de <a>
+      const logoEl = document.querySelector('img.logo-img')    // als je variant 1 gebruikte
+                    || document.getElementById('logo-img');    // of variant 2
+
+      if (!logoEl) {
+        console.warn('Geen logo <img> element gevonden');
+        return;
+      }
+
+      logoEl.src = url;
+      // Maak ’m zichtbaar (even met expliciete styling om CSS te overrulen)
+      logoEl.style.width = '120px';
+      logoEl.style.height = 'auto';
+      logoEl.style.display = 'block';
+      console.log('✅ Logo via WS gezet');
+    } catch (e) {
+      console.error('❌ Logo via WS laden faalde:', e);
     }
-
-    // zet zichtbaar rechtsboven zodat je ‘m sowieso ziet
-    logoEl.src = url;
-    logoEl.alt = 'Logo';
-    logoEl.style.position = 'fixed';
-    logoEl.style.top = '8px';
-    logoEl.style.left = '8px';
-    logoEl.style.width = '120px';
-    logoEl.style.height = 'auto';
-    logoEl.style.zIndex = '99999';
-
-    console.log('✅ Logo via WS gezet');
-  } catch (e) {
-    console.error('❌ Logo via WS laden faalde:', e);
   }
-}
 
-
-  // start ‘m zodra WS open is (of na Start.png tekenen):
+  // Na ws.open aanroepen:
   ws.addEventListener('open', () => {
     console.log('WS open, nu Start.png via WS ophalen…');
-    drawAssetOnCanvas('Start.png');
+    drawAssetOnCanvas('Start.png');  // <- zorg dat deze functie bestaat (zie hieronder)
     setLogoFromWS();
   });
-
 
 
   // ====== Admin knoppen (indien aanwezig in DOM) ======
