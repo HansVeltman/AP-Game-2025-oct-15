@@ -44,7 +44,7 @@ async def handler(ws: WebSocketServerProtocol):
         log.info("client disconnected: %s", ws.remote_address)
 
 async def process_request(path: str, request_headers) -> Optional[Tuple[int, List[Tuple[str, str]], bytes]]:
-    if path in ("/", "/healthz"):
+    if path == "/healthz":
         body = (b"OK" if path == "/healthz"
                 else b"Alignment WebSocket server. Connect with a WebSocket client.")
         headers = [("Content-Type", "text/plain; charset=utf-8"),
