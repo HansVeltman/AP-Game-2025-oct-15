@@ -37,7 +37,14 @@
       }); } 
     else {log("⚠️ .logo niet gevonden"); }
   
-  const ws = new WebSocket("ws://localhost:8765"); // 1 WebSocket aanmaken
+  // 1 CReate WebSocket also for GitHUb
+  const WS_URL = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+  ? "ws://localhost:8765"
+  : 'wss://' + PROD_WS_HOST;  // test even direct op render.com
+  // : "wss://api.thealignmentgame.com";  // Productie
+  const ws = new WebSocket(WS_URL);
+
+
   ws.binaryType = "arraybuffer";
   ws.addEventListener("open",  () => { statusEl.textContent = "WS open";     log("🎉 Verbonden met backend"); });
   ws.addEventListener("close", () => { statusEl.textContent = "WS gesloten"; log("🔌 Verbinding gesloten");   });
