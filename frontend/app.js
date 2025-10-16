@@ -38,6 +38,7 @@
     else {log("⚠️ .logo niet gevonden"); }
   
   // 1 CReate WebSocket also for GitHUb
+  const PROD_WS_HOST = 'ap-game-2025-oct-15.onrender.com'; // ← jouw Render-hostnaam FOR TESTING
   const WS_URL = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
   ? "ws://localhost:8765"
   : 'wss://' + PROD_WS_HOST;  // test even direct op render.com
