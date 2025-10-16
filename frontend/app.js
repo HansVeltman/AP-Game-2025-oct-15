@@ -208,7 +208,7 @@ async function drawAssetOnCanvas(name) {
 
       logoEl.src = url;
       // Maak ’m zichtbaar (even met expliciete styling om CSS te overrulen)
-      logoEl.style.width = '350px';
+      logoEl.style.width = '400px';
       logoEl.style.height = 'auto';
       logoEl.style.display = 'block';
       console.log('✅ Logo via WS gezet');
