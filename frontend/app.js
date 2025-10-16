@@ -67,27 +67,6 @@
     return URL.createObjectURL(blob); // vergeet evt. later niet te revoken
   }
 
-  async function drawAssetOnCanvas(name) {
-    try {
-      const url = await fetchAssetAsObjectURL(name);
-      await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          // canvas vullen (desnoods schaal je met aspect-ratio zoals gewenst)
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve();
-          // URL.revokeObjectURL(url); // optioneel na tekenen
-        };
-        img.onerror = reject;
-        img.src = url;
-      });
-      log(`🖼️ getekend: ${name}`);
-    } catch (e) {
-      log(`❌ kon asset niet tekenen: ${name} (${e.message})`);
-      console.error(e);
-    }
-  }
 
   // ====== init: toon Start.png via WS ======
   ws.addEventListener('open', () => {
@@ -175,26 +154,81 @@
     } catch {}
   }});
 
-
-  async function setLogoFromWS() {
-    try {
-      const url = await fetchAssetAsObjectURL('logo.png'); // moet bestaan in backend/assets/logo.png
-      const logoEl = document.querySelector('.logo');
-      if (logoEl) {
-        logoEl.src = url;
-        console.log('Logo via WS gezet');
-      } else {
-        console.warn('Geen .logo element gevonden');
-      }
-    } catch (e) {
-      console.error('Logo via WS laden faalde:', e);
-    }
+  let debugImg = document.getElementById('debug-asset');
+  if (!debugImg) {
+    debugImg = document.createElement('img');
+    debugImg.id = 'debug-asset';
+    debugImg.style.position = 'fixed';
+    debugImg.style.right = '8px';
+    debugImg.style.bottom = '8px';
+    debugImg.style.width = '200px';
+    debugImg.style.border = '2px solid #0aa';
+    debugImg.style.background = '#fff';
+    debugImg.style.zIndex = '99999';
+    document.body.appendChild(debugImg);
   }
+
+async function drawAssetOnCanvas(name) {
+  try {
+    const url = await fetchAssetAsObjectURL(name);
+
+    // 1) debug: laat het beeld als <img> zien (dan weet je dat de Blob correct is)
+    debugImg.src = url;
+    console.log('DEBUG preview gezet voor', name);
+
+    // 2) canvas tekenen
+    const img = await new Promise((resolve, reject) => {
+      const im = new Image();
+      im.onload = () => resolve(im);
+      im.onerror = reject;
+      im.src = url;
+    });
+
+    // vul de canvas en teken strak op formaat
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    console.log('🖼️ getekend op canvas:', name);
+    } catch (e) {
+    console.error(`❌ kon asset niet tekenen: ${name}`, e);
+    } 
+  }   
+
+async function setLogoFromWS() {
+  try {
+    const url = await fetchAssetAsObjectURL('logo.png');
+
+    let logoEl = document.querySelector('.logo');
+    if (!logoEl) {
+      // maak 'm als hij niet bestaat
+      logoEl = document.createElement('img');
+      logoEl.className = 'logo';
+      document.body.prepend(logoEl);
+    }
+
+    // zet zichtbaar rechtsboven zodat je ‘m sowieso ziet
+    logoEl.src = url;
+    logoEl.alt = 'Logo';
+    logoEl.style.position = 'fixed';
+    logoEl.style.top = '8px';
+    logoEl.style.left = '8px';
+    logoEl.style.width = '120px';
+    logoEl.style.height = 'auto';
+    logoEl.style.zIndex = '99999';
+
+    console.log('✅ Logo via WS gezet');
+  } catch (e) {
+    console.error('❌ Logo via WS laden faalde:', e);
+  }
+}
+
 
   // start ‘m zodra WS open is (of na Start.png tekenen):
   ws.addEventListener('open', () => {
+    console.log('WS open, nu Start.png via WS ophalen…');
+    drawAssetOnCanvas('Start.png');
     setLogoFromWS();
   });
+
 
 
   // ====== Admin knoppen (indien aanwezig in DOM) ======
