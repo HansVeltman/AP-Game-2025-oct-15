@@ -43,15 +43,30 @@ async def handler(ws: WebSocketServerProtocol):
     finally:
         log.info("client disconnected: %s", ws.remote_address)
 
-async def process_request(path: str, request_headers) -> Optional[Tuple[int, List[Tuple[str, str]], bytes]]:
+#async def process_request(path: str, request_headers) -> Optional[Tuple[int, List[Tuple[str, str]], bytes]]:
+ #   if path == "/healthz":
+  #      body = (b"OK" if path == "/healthz"
+   #             else b"Alignment WebSocket server. Connect with a WebSocket client.")
+    #    headers = [("Content-Type", "text/plain; charset=utf-8"),
+     #              ("Content-Length", str(len(body))),
+      #             ("Cache-Control", "no-cache")]
+       # return (200, headers, body)
+   # return None  # anders: laat de WS-upgrade doorgaan
+
+
+async def process_request(path, request_headers):
     if path == "/healthz":
-        body = (b"OK" if path == "/healthz"
-                else b"Alignment WebSocket server. Connect with a WebSocket client.")
-        headers = [("Content-Type", "text/plain; charset=utf-8"),
-                   ("Content-Length", str(len(body))),
-                   ("Cache-Control", "no-cache")]
+        body = b"OK"
+        headers = [
+            ("Content-Type", "text/plain; charset=utf-8"),
+            ("Content-Length", str(len(body))),
+            ("Cache-Control", "no-cache"),
+        ]
         return (200, headers, body)
-    return None  # anders: laat de WS-upgrade doorgaan
+    return None  # alle andere paden: WS-upgrade toestaan
+
+
+
 
 async def main():
     host = os.getenv("HOST", "0.0.0.0")
