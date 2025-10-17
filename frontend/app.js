@@ -9,12 +9,10 @@
   const log = (t) => { if (logEl) logEl.textContent += t + "\n"; };
 
   // ====== WebSocket URL (prod = WSS) ======
-  // Zet voor definitieve productie de host op 'api.thealignmentgame.com'
-  const PROD_WS_HOST = 'api.thealignmentgame.com';      // ← definitief subdomein
-  // Voor directe Render-test kun je tijdelijk deze gebruiken:
-  // const PROD_WS_HOST = 'ap-game-2025-oct-15.onrender.com';
+  const PROD_WS_HOST = 'api.thealignmentgame.com';      // ← definitief subdomein // Zet voor definitieve productie de host op 'api.thealignmentgame.com'
+  // const PROD_WS_HOST = 'ap-game-2025-oct-15.onrender.com'; // Voor directe Render-test kun je tijdelijk deze gebruiken:
 
-  const WS_URL =
+  const WS_URL = // NEW
     (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
       ? 'ws://localhost:8765/'
       : `wss://${PROD_WS_HOST}/`; // trailing slash zodat upgrade op "/" plaatsvindt
@@ -22,60 +20,17 @@
   const ws = new WebSocket(WS_URL);
   ws.binaryType = "arraybuffer";
 
+  //  ===== LISTENERS ===============
+
   ws.addEventListener("open",  () => { if (statusEl) statusEl.textContent = "WS open";     log("🎉 Verbonden met backend"); });
   ws.addEventListener("close", (e) => { if (statusEl) statusEl.textContent = "WS gesloten"; log(`🔌 Verbinding gesloten (${e.code})`);   });
   ws.addEventListener("error", (e) => { if (statusEl) statusEl.textContent = "WS fout";     log("⚠️ WebSocket fout"); console.log(e);   });
 
-  // ====== kleine util om op 1 passend antwoord te wachten ======
-  function waitForOnce(filterFn, timeoutMs = 7000) {
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        ws.removeEventListener('message', onMsg);
-        reject(new Error('timeout waiting for WS response'));
-      }, timeoutMs);
-
-      function onMsg(e) {
-        try {
-          if (typeof e.data !== "string") return;
-          const data = JSON.parse(e.data);
-          if (filterFn(data)) {
-            clearTimeout(timer);
-            ws.removeEventListener('message', onMsg);
-            resolve(data);
-          }
-        } catch (_) {}
-      }
-
-      ws.addEventListener('message', onMsg);
-    });
-  }
-
-  // ====== WS: asset via JSON ophalen → Blob URL → tekenen op canvas ======
-  async function fetchAssetAsObjectURL(name) {
-    const req = { type: 'asset', name };
-    ws.send(JSON.stringify(req));
-    const res = await waitForOnce(d => d.type === 'asset' && d.name === name);
-    const b64 = res.data_b64;
-    const mime = res.mime || 'application/octet-stream';
-
-    // base64 → bytes → Blob
-    const bin = atob(b64);
-    const len = bin.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
-    const blob = new Blob([bytes], { type: mime });
-    return URL.createObjectURL(blob); // vergeet evt. later niet te revoken
-  }
-
-
-  // ====== init: toon Start.png via WS ======
-  ws.addEventListener('open', () => {
-    // pas tekenen ná open, anders kan je eerste request racen met de handshake
-    drawAssetOnCanvas('Start.png');
+  ws.addEventListener('open', () => {  // ====== init: toon Start.png via WS ======
+    drawAssetOnCanvas('Start.png'); // pas tekenen ná open, anders kan je eerste request racen met de handshake
   });
 
-  // ====== UI: logo click → terug naar start + optioneel bericht naar backend ======
-  const logoEl = document.querySelector(".logo");
+  const logoEl = document.querySelector(".logo"); // ====== UI: logo click → terug naar start + optioneel bericht naar backend ======
   if (logoEl) {
     logoEl.addEventListener("click", (e) => {
       e.preventDefault();
@@ -96,12 +51,6 @@
       log("❌ Kan niet versturen: WS niet open");
     }
   }
-
-  // ====== optioneel: bestaande renderer (als je die gebruikt) ======
-  // Zorg dat DrawCanvas en AddPuzzle via <script> geladen zijn vóór dit script.
-  const renderer = (window.DrawCanvas && typeof window.DrawCanvas.createRenderer === 'function')
-    ? window.DrawCanvas.createRenderer(canvas)
-    : null;
 
   // Berichten van backend verwerken
   ws.addEventListener("message", async (ev) => {
@@ -154,9 +103,49 @@
     } catch {}
   }});
 
+
+  //  TEKENFUNCTIES EN AFBEELDINGEN OPHALEN ============
+
+  // ====== kleine util om op 1 passend antwoord te wachten ======
+  function waitForOnce(filterFn, timeoutMs = 7000) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        ws.removeEventListener('message', onMsg);
+        reject(new Error('timeout waiting for WS response'));
+      }, timeoutMs);
+      function onMsg(e) {
+        try {
+          if (typeof e.data !== "string") return;
+          const data = JSON.parse(e.data);
+          if (filterFn(data)) {
+            clearTimeout(timer);
+            ws.removeEventListener('message', onMsg);
+            resolve(data);
+          }
+        } catch (_) {}
+      }
+      ws.addEventListener('message', onMsg);
+    });
+  }
+
+  // ====== WS: asset via JSON ophalen → Blob URL → tekenen op canvas ======
+  async function fetchAssetAsObjectURL(name) {
+    const req = { type: 'asset', name };
+    ws.send(JSON.stringify(req));
+    const res = await waitForOnce(d => d.type === 'asset' && d.name === name);
+    const b64 = res.data_b64;
+    const mime = res.mime || 'application/octet-stream';
+    const bin = atob(b64);  // base64 → bytes → Blob
+    const len = bin.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+    const blob = new Blob([bytes], { type: mime });
+    return URL.createObjectURL(blob); // vergeet evt. later niet te revoken
+  }
+
 async function drawAssetOnCanvas(name) {
   try {
-    const url = await fetchAssetAsObjectURL(name);
+    const url = await fetchAssetAsObjectURL(name); // maak er een object van
 
     // 2) canvas tekenen
     const img = await new Promise((resolve, reject) => {
@@ -174,6 +163,9 @@ async function drawAssetOnCanvas(name) {
     console.error(`❌ kon asset niet tekenen: ${name}`, e);
     } 
   }   
+
+
+  //  ==== ACTIES: klik op logo of in menu ======
 
   async function setLogoFromWS() {
     try {
@@ -217,6 +209,7 @@ async function drawAssetOnCanvas(name) {
       send({ messagetype: "RUNSIMULATION", numbers: [days], texts: [label] });
     });
   }
+
   bindClick("run-day",   1,   "Run one day");
   bindClick("run-week",  7,   "Run one week");
   bindClick("run-month", 30,  "Run one month");
@@ -231,5 +224,12 @@ async function drawAssetOnCanvas(name) {
       send({ messagetype: "RUNSIMULATION", numbers: [-1], texts: ["Reset the simulation"] });
       drawAssetOnCanvas('Start.png');
     });
+
+  // ====== optioneel: bestaande renderer (als je die gebruikt) ======
+  // Zorg dat DrawCanvas en AddPuzzle via <script> geladen zijn vóór dit script.
+  const renderer = (window.DrawCanvas && typeof window.DrawCanvas.createRenderer === 'function')
+    ? window.DrawCanvas.createRenderer(canvas)
+    : null;
+
   }
 })();
