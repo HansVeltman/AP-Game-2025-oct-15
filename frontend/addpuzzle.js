@@ -114,7 +114,7 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
     };
 
     function positionPuzzle() {
-      if (!imgEl || !puzzleDock || !wrapper) return;
+      if (!imgEl || !wrapper) return;
 
       const rect = imgEl.getBoundingClientRect();
       
@@ -150,7 +150,7 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
       const schaal = imageWidth > 1200 ? 1 : (imageWidth / 1200);
 
       // 2) Rechterkant en Bovenkant berekenen
-      const rechterkant = imageWidth + (220 * schaal);
+      const rechterkant = imageWidth + (220 * schaal);jhbvxz
       const bovenkant = rect.top + window.scrollY - 20;
 
       // 3) PuzzleDock positioneren en schalen
