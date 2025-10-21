@@ -150,8 +150,8 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
       const schaal = imageWidth > 1200 ? 1 : (imageWidth / 1200);
 
       // 2) Rechterkant en Bovenkant berekenen
-      const rechterkant = imageWidth + (220 * schaal);jhbvxz
-      const bovenkant = rect.top + window.scrollY - 20;
+      const rechterkant = imageWidth + (220 * schaal);
+      const bovenkant = rect.top - 20;
 
       // 3) PuzzleDock positioneren en schalen
       //    BASIS_WIDTH en BASIS_HEIGHT worden als bestaande constanten verondersteld.
