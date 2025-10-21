@@ -3,7 +3,7 @@
   const $ = (sel) => document.querySelector(sel);
   const statusEl = $("#status");
   const logEl = $("#log");
-  const canvas = document.getElementById("TheMainArea");
+  const canvas = $("TheMainArea");
   const ctx = canvas.getContext("2d");
 
   // Renderer beschikbaar maken voor de hele module
@@ -187,10 +187,6 @@ async function drawAssetOnCanvas(name) {
       }
 
       logoEl.src = url;
-      // Maak ’m zichtbaar (even met expliciete styling om CSS te overrulen)
-      //logoEl.style.width = '400px';
-      //logoEl.style.height = 'auto';
-      //logoEl.style.display = 'block';
       console.log('✅ Logo via WS gezet');
     } catch (e) {
       console.error('❌ Logo via WS laden faalde:', e);
