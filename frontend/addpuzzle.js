@@ -130,10 +130,14 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
       const scaledW = BASIS_WIDTH * scale;
 
       // wrapper zelf op (0,0) in de Dock
+      // in addpuzzle.js, bij het positioneren van de wrapper
       wrapper.style.position = "absolute";
-      wrapper.style.left = "0px";
-      wrapper.style.top = "0px";
+      wrapper.style.right = "0px";   // <-- i.p.v. left: 0
+      wrapper.style.top   = "0px";
+      wrapper.style.left  = "";      // zeker wissen als het gezet was
       wrapper.style.margin = "0";
+      wrapper.style.transformOrigin = "top right";
+      wrapper.style.transform = `scale(${scale})`;
 
       // Dock positioneren (Variant A = fixed → viewport-coördinaten; géén scrollY)
       puzzleDock.style.position = "fixed";

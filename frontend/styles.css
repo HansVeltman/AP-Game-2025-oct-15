@@ -155,23 +155,7 @@ html, body{
   padding-top: 0 !important; /* jouw parent had 3px */
 }
 
-#PuzzleDock .puzzle-wrapper {
 
-  pointer-events: auto !important;
-
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  margin: 0 !important;
- 
-  transformOrigin = "top left" !important;
-  transform = `scale(${scale})`;
-
-  left = "0px" !important;
-  top = "0px";
-  wrapper.style.
-
-}
 
 /* optioneel: cursor als handje over puzzelstukken */
 #PuzzleDock .puzzle-button { cursor: pointer; }
