@@ -157,17 +157,17 @@ html, body{
 
 #PuzzleDock .puzzle-wrapper {
 
-  pointer-events: auto;   /* clicks op de stukken blijven werken */
+  pointer-events: auto !important;
 
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   margin: 0 !important;
  
-  transformOrigin = "top left"; // ← was "top right"
+  transformOrigin = "top left" !important;
   transform = `scale(${scale})`;
 
-  left = "0px";
+  left = "0px" !important;
   top = "0px";
   wrapper.style.
 
