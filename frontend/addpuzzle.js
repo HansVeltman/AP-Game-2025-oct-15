@@ -112,51 +112,43 @@ const MAX_SCALE = 6
     };
 
     function positionPuzzle() {
-      if (!wrapper) return;
+      if (!imgEl || !puzzleDock || !wrapper) return;
 
       const rect = imgEl.getBoundingClientRect();
-      const scrollX = window.pageXOffset || document.documentElement.scrollLeft || 0;
-      const scrollY = window.pageYOffset || document.documentElement.scrollTop  || 0;
-
-      wrapper.style.left = Math.round(rect.left + scrollX) + 'px';
-      wrapper.style.top  = Math.round(rect.top  + scrollY) + 'px';
-
-      const imgHeight = rect.height;
-
-      // Als de image nog geen zinnige hoogte heeft (bijv. 0 of ~32px tijdens opstart),
-      // wachten we even; laat de puzzel verborgen.
-      const MIN_MEANINGFUL = 30; // px
-      if (!imgHeight || imgHeight < MIN_MEANINGFUL) {
-          wrapper.style.visibility = "hidden";
-          return;
-      }
       
-      // positie rechts op 3% en top 40px boven aan TheMainArea
-      puzzleDock.style.position = "fixed";
-      puzzleDock.style.right = "3%";
-      puzzleDock.style.top = `${rect.top - 40}px`; // zonder scrollY
-      puzzleDock.style.zIndex = "1000";
-      puzzleDock.style.pointerEvents = "auto";
-
-      wrapper.style.transformOrigin = "top right";
-      wrapper.style.pointerEvents = "auto";
-
-      // SCHAAL: (image-hoogte × heightRatio) t.o.v. basis-hoogte van de puzzel
-      const targetHeight = imgHeight * (typeof heightRatio === "number" ? heightRatio : 1);
-    
+    // schaal berekenen op basis van ankerhoogte
+      const targetHeight = rect.height * (typeof heightRatio === "number" ? heightRatio : 1);
       let scale = targetHeight / BASIS_HEIGHT;
-
-      // veiligheids-rails (voorkomt gekke sprongen)
-      const MIN_SCALE = 0.2;
-      const MAX_SCALE = 1;
       scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+
+      // schaal toepassen (alleen scale, geen translate)
       wrapper.style.transformOrigin = "top right";
       wrapper.style.transform = `scale(${scale})`;
-      wrapper.style.visibility = "visible";
 
+      // geschaalde breedte nodig voor correcte X
+      const scaledW = BASIS_WIDTH * scale;
 
+      // wrapper zelf op (0,0) in de Dock
+      wrapper.style.position = "absolute";
+      wrapper.style.left = "0px";
+      wrapper.style.top = "0px";
+      wrapper.style.margin = "0";
 
+      // Dock positioneren (Variant A = fixed → viewport-coördinaten; géén scrollY)
+      puzzleDock.style.position = "fixed";
+      puzzleDock.style.right = ""; // oude right wissen, we gebruiken left
+      puzzleDock.style.left  = ""; // reset voor de zekerheid
 
+      // UITLIJNING: rechterrand van menu ≈ rechterrand anker (met kleine marge)
+      let left = Math.round(rect.right - scaledW + GAP_PX);
+
+      // viewport-clamp zodat het menu nooit buiten beeld valt
+      const minLeft = 8;
+      const maxLeft = window.innerWidth - scaledW - 8;
+      left = Math.max(minLeft, Math.min(maxLeft, left));
+
+      puzzleDock.style.left = `${left}px`;
+      puzzleDock.style.top  = `${Math.round(rect.top - UI_OFFSET_Y)}px`;
     } // end of positionPuzzle()
 
     // events voor herpositioneren
