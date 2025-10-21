@@ -5,7 +5,7 @@
 
 <style type="text/css">
 	.puzzle-wrapper {width:200px; height:202px; line-height:1; /*width and height should be 1:1. Fine-tune from there*/
-	 position:relative; border-sizing:border-box; background:#FFF; border:2px solid #FFF; font-family: system-ui, Roboto, Arial, sans-serif; font-size: 14px}
+	 position:relative; box-sizing:border-box; background:#FFF; border:2px solid #FFF; font-family: system-ui, Roboto, Arial, sans-serif; font-size: 14px}
 	/* .puzzle-wrapper.puzzle-complete {box-shadow:5px 5px 0 rgba(121,110,89,.75);}
 	.puzzle-button {text-decoration:none;}
 
@@ -34,7 +34,6 @@
 	.puzzle-button.information .logo-puzzle-text {width:85%; left:15%; top:41%;}
 
 /*puzzle pieces colors & rollover*/
-	.puzzle-button .bg {}
 	.puzzle-button.strategy .bg {fill:#71B02C;}
 	.puzzle-button.strategy:hover .bg {fill:#51900C;}
 	.puzzle-button.process .bg {fill:#243B7D;}

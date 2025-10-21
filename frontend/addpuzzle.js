@@ -2,8 +2,14 @@
 (function (global) {
   "use strict";
 
-  const BASIS_HEIGHT = 200; // px - originele hoogte uit puzzle-buttons2.html
-  const BASIS_WIDTH  = 202; // px - originele breedte (alleen als referentie)
+// zoek en vervang je huidige basisconstanten:
+const BASIS_WIDTH  = 200; // overeenkomstig puzzle-buttons2.html
+const BASIS_HEIGHT = 202;
+
+// laat schaal groter dan 1 toe (verwijder de cap of zet 'm hoog)
+const MIN_SCALE = 0.2;
+const MAX_SCALE = 6
+
 
   const DEFAULTS = { puzzleUrl: "puzzle-buttons2.html" };
 
@@ -126,12 +132,9 @@
       }
       
       // positie rechts op 3% en top 40px boven aan TheMainArea
-      const pageTop = rect.top + window.scrollY;
       puzzleDock.style.position = "fixed";
       puzzleDock.style.right = "3%";
-      // puzzleDock.style.top = `${pageTop}px`;
-      puzzleDock.style.top = `${pageTop - 40}px`; // 40px omhoog tov main picture
-
+      puzzleDock.style.top = `${rect.top - 40}px`; // zonder scrollY
       puzzleDock.style.zIndex = "1000";
       puzzleDock.style.pointerEvents = "auto";
 
@@ -140,15 +143,20 @@
 
       // SCHAAL: (image-hoogte × heightRatio) t.o.v. basis-hoogte van de puzzel
       const targetHeight = imgHeight * (typeof heightRatio === "number" ? heightRatio : 1);
+    
       let scale = targetHeight / BASIS_HEIGHT;
 
       // veiligheids-rails (voorkomt gekke sprongen)
       const MIN_SCALE = 0.2;
       const MAX_SCALE = 1;
       scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
-
+      wrapper.style.transformOrigin = "top right";
       wrapper.style.transform = `scale(${scale})`;
       wrapper.style.visibility = "visible";
+
+
+
+
     } // end of positionPuzzle()
 
     // events voor herpositioneren
@@ -186,20 +194,16 @@
   else global.AddPuzzle = AddPuzzle;
 
   window.addEventListener('DOMContentLoaded', () => {
-  const imgEl =
-    document.querySelector('[data-puzzle-anchor]') ||
-    document.getElementById('logo-img') ||
-    Array.from(document.images).sort((a,b)=>(b.clientHeight||0)-(a.clientHeight||0))[0] ||
-    null;
+  const imgEl = document.getElementById('TheMainArea'); // <<< canvas als anker
+  if (!imgEl) { console.error('TheMainArea niet gevonden'); return; }
 
   AddPuzzle.init({
-    imgEl,                               // ← NIET #PuzzleDock !
-    send: (msg) => console.log('send', msg),
+    imgEl,
     puzzleUrl: '/puzzle-buttons2.html',
-    heightRatio: 1,
-    onClick: (key, msgType) => console.log('klik', key, msgType),
+    heightRatio: 1, // desgewenst bijstellen
+    send: (m)=>console.log('puzzle send', m),
+    onClick: (key, t)=>console.log('Puzzle click:', key, t),
   });
 });
-
 
 })(this);
