@@ -86,6 +86,7 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
 
       wirePuzzleClicks(wrapper);
       positionPuzzle();
+      wrapper.style.visibility = 'visible'
     }  // end of loadPuzzle()
       
     function wirePuzzleClicks(root) { // Map DOM-class → messagetype
