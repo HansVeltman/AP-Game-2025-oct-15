@@ -151,7 +151,6 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
 
       // 2) Rechterkant en Bovenkant berekenen
       const rechterkant = imageWidth + (220 * schaal);
-      const rect = hoofdafbeelding.getBoundingClientRect();
       const bovenkant = rect.top + window.scrollY - 20;
 
       // 3) PuzzleDock positioneren en schalen
