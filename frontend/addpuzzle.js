@@ -109,6 +109,12 @@
       if (!wrapper) return;
 
       const rect = imgEl.getBoundingClientRect();
+      const scrollX = window.pageXOffset || document.documentElement.scrollLeft || 0;
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop  || 0;
+
+      wrapper.style.left = Math.round(rect.left + scrollX) + 'px';
+      wrapper.style.top  = Math.round(rect.top  + scrollY) + 'px';
+
       const imgHeight = rect.height;
 
       // Als de image nog geen zinnige hoogte heeft (bijv. 0 of ~32px tijdens opstart),
@@ -119,7 +125,6 @@
           return;
       }
       
-
       // positie rechts op 3% en top 40px boven aan TheMainArea
       const pageTop = rect.top + window.scrollY;
       puzzleDock.style.position = "fixed";
@@ -181,13 +186,20 @@
   else global.AddPuzzle = AddPuzzle;
 
   window.addEventListener('DOMContentLoaded', () => {
-    AddPuzzle.init({
-      imgEl: document.getElementById('PuzzleDock'),    // kies een element dat zichtbaar en >~80px hoog is
-      send: (msg) => console.log('send', msg),
-      puzzleUrl: '/puzzle-buttons2.html',
-      heightRatio: 1,
-      onClick: (key, msgType) => console.log('klik', key, msgType),
-    });
+  const imgEl =
+    document.querySelector('[data-puzzle-anchor]') ||
+    document.getElementById('logo-img') ||
+    Array.from(document.images).sort((a,b)=>(b.clientHeight||0)-(a.clientHeight||0))[0] ||
+    null;
+
+  AddPuzzle.init({
+    imgEl,                               // ← NIET #PuzzleDock !
+    send: (msg) => console.log('send', msg),
+    puzzleUrl: '/puzzle-buttons2.html',
+    heightRatio: 1,
+    onClick: (key, msgType) => console.log('klik', key, msgType),
   });
+});
+
 
 })(this);
