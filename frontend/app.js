@@ -197,7 +197,8 @@ async function drawAssetOnCanvas(name) {
   ws.addEventListener('open', () => {
     console.log('WS open, nu Start.png via WS ophalen…');
     // drawAssetOnCanvas('Start.png');  // <- zorg dat deze functie bestaat (zie hieronder)
-    setLogoFromWS();
+    setLogoFromWS();  // moet aparte async method zijn vanwege de await
+    drawAssetOnCanvas('Start.png');  // <- dit doet de WS-aanvraag
   });
 
 
