@@ -145,14 +145,6 @@ html, body{
 
 
 
-#PuzzleDock .puzzle-wrapper {
-  
-}
-
-
-
-
-
 #PuzzleDock {
   
   position: fixed;        /* “rechts op 5% van de rechterkant” */
@@ -164,16 +156,21 @@ html, body{
 }
 
 #PuzzleDock .puzzle-wrapper {
-  /* De originele puzzel heeft vaste basis-maten; we schalen met transform */
-  transform-origin: top right;
-  /* transform wordt door JS gezet (scale(...)) */
+
   pointer-events: auto;   /* clicks op de stukken blijven werken */
 
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   margin: 0 !important;
-  transform-origin: top right !important;
+ 
+  transformOrigin = "top left"; // ← was "top right"
+  transform = `scale(${scale})`;
+
+  left = "0px";
+  top = "0px";
+  wrapper.style.
+
 }
 
 /* optioneel: cursor als handje over puzzelstukken */
