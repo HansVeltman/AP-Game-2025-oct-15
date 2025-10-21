@@ -142,7 +142,7 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
 
       // Dock positioneren (Variant A = fixed → viewport-coördinaten; géén scrollY)
       const hoofdafbeelding = document.getElementById('TheMainArea');
-      const puzzleDock = document.getElementById('puzzleDock');
+      // const puzzleDock = document.getElementById('PuzzleDock');
       if (!hoofdafbeelding || !puzzleDock) return;
 
       // 1) Schaal bepalen
