@@ -163,7 +163,7 @@ html, body{
 
 /* 1) 10px marge aan de linkerkant voor alles onder de header */
 .site-header + * { margin-left: 50px; }
-.site-header - * ~ * { margin-left: 35px; }
+.site-header + * ~ * { margin-left: 35px; }
 
 /* 2) Achtergrond van PuzzleDock gelijk aan de headerkleur */
 #PuzzleDock {
