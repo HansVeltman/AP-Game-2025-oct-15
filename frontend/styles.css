@@ -143,6 +143,16 @@ html, body{
 
 /* ── Puzzel (zwevend rechts) ───────────────────────────────────────────── */
 
+
+
+#PuzzleDock .puzzle-wrapper {
+  
+}
+
+
+
+
+
 #PuzzleDock {
   
   position: fixed;        /* “rechts op 5% van de rechterkant” */
@@ -150,6 +160,7 @@ html, body{
   top: 0;                 /* echte top-positie wordt door JS gezet */
   z-index: 1000;
   pointer-events: auto;   /* click doorgeven */
+  padding-top: 0 !important; /* jouw parent had 3px */
 }
 
 #PuzzleDock .puzzle-wrapper {
@@ -157,6 +168,12 @@ html, body{
   transform-origin: top right;
   /* transform wordt door JS gezet (scale(...)) */
   pointer-events: auto;   /* clicks op de stukken blijven werken */
+
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  margin: 0 !important;
+  transform-origin: top right !important;
 }
 
 /* optioneel: cursor als handje over puzzelstukken */
