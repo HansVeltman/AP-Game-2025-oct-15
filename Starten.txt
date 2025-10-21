@@ -17,3 +17,4 @@ git add -A                            # ALLES stagën (incl. deletes)
 git commit -am "Restruct code"        # beschrijf je wijziging
 git push origin main                  # naar GitHub
 
+

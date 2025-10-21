@@ -6,6 +6,12 @@
   const canvas = document.getElementById("TheMainArea");
   const ctx = canvas.getContext("2d");
 
+  // Renderer beschikbaar maken voor de hele module
+  let renderer = null;
+  if (window.DrawCanvas && typeof window.DrawCanvas.createRenderer === 'function') {
+    renderer = window.DrawCanvas.createRenderer(canvas);
+  }
+
   const log = (t) => { if (logEl) logEl.textContent += t + "\n"; };
 
   // ====== WebSocket URL (prod = WSS) ======
@@ -224,12 +230,6 @@ async function drawAssetOnCanvas(name) {
       send({ messagetype: "RUNSIMULATION", numbers: [-1], texts: ["Reset the simulation"] });
       drawAssetOnCanvas('Start.png');
     });
-
-  // ====== optioneel: bestaande renderer (als je die gebruikt) ======
-  // Zorg dat DrawCanvas en AddPuzzle via <script> geladen zijn vóór dit script.
-  const renderer = (window.DrawCanvas && typeof window.DrawCanvas.createRenderer === 'function')
-    ? window.DrawCanvas.createRenderer(canvas)
-    : null;
-
   }
+  
 })();

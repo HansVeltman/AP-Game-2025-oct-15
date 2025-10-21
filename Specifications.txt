@@ -2,42 +2,15 @@ SPECIFICATIES WebApplicatie
 •	Toont een webpagina met diverse afbeeldingen en een menu
 •	Backend en frontend communiceren met elkaar mbv websockets
 •	Het programma heeft een backend gebouwd inPython 3.13 en een fronted in JS.
-•	De ontwikkelomgeving is Visual Studio Code, version: 1.104.3, OS: Windows_NT x64 10.0.22621
-•	Frontend bestaat uit een index.html, styles.css, puzzle-button2.html, diverse js files en een assets direcory met afbeeldingen
 •	Backend bestaat uit een python file backend.py en een assets direcory met afbeeldingen
-•	De header heeft een lichtbruine achtergrond.
 •	De header van de webpagina bestaat uit drie delen
       1.Links toont het de afbeelding uit “assets\Logo.png”
       2.In het midden een menu met drie opties die ieder diverse subopties hebben (zie hieronder)
       3.Rechts toont het de afbeelding uit “assets\UserInfo.png” als rechthoek van 300px X 500px, zonder rondingen.
-•	Het menu is als volgt opgebouwd:
-		  User 
-			policy: view 
-			policy: define 
-			report: company
-			report: activity  
-			decide: now 
-			report: activity
-			report: company
-			report: game	
-		  Administrators
-			define: game 
-			define: companies 
-			run: day 
-			run: week 
-			run: month 
-			run: year 
-			Reset simulation
-			activate disruptive event
-		  Help
-			getting-started 
-			help
-			about The Alignment Puzzle  
-•	Aan alle menuopties zijn icoontjes toegevoegd.
 •	Onder de header is een gebied "TheMainArea" waarin een afbeelding wordt getoond, links uitgelijnd.
 •	Onder de header is rechts uitgelijnd een tweede menu opgenomen "PuzzleDock" in de vorm van de 5 puzzelstukken van de AlignmentPuzzel, gedefineerd infile puzzle-button2.html.
 •	een muisklik op het logo in de header plaatst afbeelding \frontend\assets\Start.png in "TheMainArea"
-•	een muisklik op het puzzelstuk "Strategie" in het puzzelstukkemodel "PuzzleDock" plaatst afbeelding \frontend\assets\Strategy.png in "TheMainArea"
+•	een muisklik op het puzzelstuk "Strategie" in het puzzelstukkemodel "PuzzleDock" zorgt ervoor dat afbeelding \frontend\assets\Strategy.png via de websocket wordt doiorgegeven van backend naar frontend. FRontend plaatst die afbeelfing op "TheMainArea"
 •	De communicatie van frondend naar backend gaat via berichten die bestaan uit
 	- messagetype {SHOWSTART, SHOWSTRATEGY, SHOWPROCESS, SHOWCONTROL, SHOWORGANIZATION, SHOWINFORMATION, RUNSIMULATION}
 	- een verzameling getallen
@@ -52,10 +25,8 @@ SPECIFICATIES WebApplicatie
 	- een verzameling triangles
 	- een verzameling arrows
 	- volgens de gegevensstructuur in ModelData_RectangelsLinesAndTriangles.py
-
 - Grote afbeeldingen zoals Strategy.png en Start.png mogen alleen backend worden opgeslagen
 - Ze moeten worden doorgegeven aan de frontend via de messages via de websocket
-
 - Als de gebruiker op het logo klikt moet een message naar de backend worden gestuurd van het type SHOWSTART
 - De backend haalt de afbeelding Start.png op uit backend\assets en geeft een message terug naar de client van het type SHOWSTART met de afbeelding als Image bijgevoegd.
 - De frontend ontvangt de message SHOWSTART met de afbeelding Start.png en beeldt deze af op "TheMainArea"
@@ -79,6 +50,15 @@ SPECIFICATIES WebApplicatie
 - Als de gebruiker op het stukje puzzle-button.process klikt moet een message naar de backend worden gestuurd van het type SHOWINFORMATION
 - De backend haalt de tekeninstructies op voor reactangles, triangles, lijnen en images en geeft een message terug naar de client van het type SHOWINFORMATION met de afbeelding als Image bijgevoegd.
 - De frontend ontvangt de message SHOWINFORMATION met de tekeninstructies en beeldt deze af op "TheMainArea"
+
+ONTWIKKELOMGEVING
+- De ontwikkelomgeving is Visual Studio Code, version: 1.104.3, OS: Windows_NT x64 10.0.22621
+- GitHub omgeving\project is: HansVeltman \ AP-Game-2025-oct-15
+- Render.com omgeving voor draaien backend is:  HansVeltman\AP-Game-2025-oct-15
+- Vercel.com omgeving voor draaien frontend is: Hans Veltman's projects\AP-Game-2025-oct-15
+- Website: https://www.thealignmentgame.com/
+
+
 
 
 
