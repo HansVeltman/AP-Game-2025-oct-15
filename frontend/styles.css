@@ -155,6 +155,14 @@ html, body{
   padding-top: 0 !important; /* jouw parent had 3px */
 }
 
+#PuzzleDock .puzzle-wrapper {
+  position: absolute;
+  right: 0;           /* past bij transform-origin: top right */
+  top: 0;
+  margin: 0;
+  pointer-events: auto;
+  /* géén transform/JS-strings in CSS */
+}
 
 
 /* optioneel: cursor als handje over puzzelstukken */
@@ -172,7 +180,12 @@ html, body{
   /* de bestaande position/right/top/z-index/pointer-events blijven gewoon werken */
 }
 
-#PuzzleDock.menu { z-index: 10; pointer-events: auto; }
+#PuzzleDock.menu { z-index: 1000; pointer-events: auto; }
+
+/* TIJDELIJK */
+#PuzzleDock { outline: 2px solid red; }
+#PuzzleDock .puzzle-wrapper { background: rgba(0,0,255,.07); }
+
 
 /* Responsive */
 @media (max-width: 900px){
