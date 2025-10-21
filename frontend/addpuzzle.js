@@ -3,8 +3,8 @@
   "use strict";
 
 // zoek en vervang je huidige basisconstanten:
-const BASIS_WIDTH  = 200; // overeenkomstig puzzle-buttons2.html
-const BASIS_HEIGHT = 202;
+const BASIS_WIDTH  = 100; // overeenkomstig puzzle-buttons2.html
+const BASIS_HEIGHT = 101;
 
 // laat schaal groter dan 1 toe (verwijder de cap of zet 'm hoog)
 const MIN_SCALE = 0.2;
