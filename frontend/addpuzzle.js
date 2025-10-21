@@ -141,20 +141,26 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
       wrapper.style.transform = `scale(${scale})`;
 
       // Dock positioneren (Variant A = fixed → viewport-coördinaten; géén scrollY)
-      puzzleDock.style.position = "fixed";
-      puzzleDock.style.right = ""; // oude right wissen, we gebruiken left
-      puzzleDock.style.left  = ""; // reset voor de zekerheid
+      const hoofdafbeelding = document.getElementById('TheMainArea');
+      const puzzleDock = document.getElementById('puzzleDock');
+      if (!hoofdafbeelding || !puzzleDock) return;
 
-      // UITLIJNING: rechterrand van menu ≈ rechterrand anker (met kleine marge)
-      let left = Math.round(rect.right - scaledW + GAP_PX);
+      // 1) Schaal bepalen
+      const imageWidth = hoofdafbeelding.clientWidth || hoofdafbeelding.width || 0;
+      const schaal = imageWidth > 1200 ? 1 : (imageWidth / 1200);
 
-      // viewport-clamp zodat het menu nooit buiten beeld valt
-      const minLeft = 8;
-      const maxLeft = window.innerWidth - scaledW - 8;
-      left = Math.max(minLeft, Math.min(maxLeft, left));
+      // 2) Rechterkant en Bovenkant berekenen
+      const rechterkant = imageWidth + (220 * schaal);
+      const rect = hoofdafbeelding.getBoundingClientRect();
+      const bovenkant = rect.top + window.scrollY - 20;
 
-      puzzleDock.style.left = `${left}px`;
-      puzzleDock.style.top  = `${Math.round(rect.top - UI_OFFSET_Y)}px`;
+      // 3) PuzzleDock positioneren en schalen
+      //    BASIS_WIDTH en BASIS_HEIGHT worden als bestaande constanten verondersteld.
+      puzzleDock.style.position = puzzleDock.style.position || 'absolute';
+      puzzleDock.style.left = (rechterkant - (BASIS_WIDTH * schaal)) + 'px';
+      puzzleDock.style.top = bovenkant + 'px';
+      puzzleDock.style.width = (BASIS_WIDTH * schaal) + 'px';
+      puzzleDock.style.height = (BASIS_HEIGHT * schaal) + 'px';
     } // end of positionPuzzle()
 
     // events voor herpositioneren
