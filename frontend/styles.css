@@ -144,6 +144,7 @@ html, body{
 /* ── Puzzel (zwevend rechts) ───────────────────────────────────────────── */
 
 #PuzzleDock {
+  
   position: fixed;        /* “rechts op 5% van de rechterkant” */
   right: 1%;
   top: 0;                 /* echte top-positie wordt door JS gezet */

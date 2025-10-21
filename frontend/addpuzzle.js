@@ -113,7 +113,7 @@
 
       // Als de image nog geen zinnige hoogte heeft (bijv. 0 of ~32px tijdens opstart),
       // wachten we even; laat de puzzel verborgen.
-      const MIN_MEANINGFUL = 80; // px
+      const MIN_MEANINGFUL = 30; // px
       if (!imgHeight || imgHeight < MIN_MEANINGFUL) {
           wrapper.style.visibility = "hidden";
           return;
@@ -125,7 +125,7 @@
       puzzleDock.style.position = "fixed";
       puzzleDock.style.right = "3%";
       // puzzleDock.style.top = `${pageTop}px`;
-      puzzleDock.style.top = `${pageTop - 40}px`; // 50px omhoog tov main picture
+      puzzleDock.style.top = `${pageTop - 40}px`; // 40px omhoog tov main picture
 
       puzzleDock.style.zIndex = "1000";
       puzzleDock.style.pointerEvents = "auto";
@@ -150,17 +150,12 @@
     window.addEventListener("resize", positionPuzzle);
     window.addEventListener("scroll", positionPuzzle);
 
-    // herpositioneer bij window events
-    window.addEventListener("resize", positionPuzzle);
-    window.addEventListener("scroll", positionPuzzle);
-
     // zodra de afbeelding echt geladen is
     imgEl.addEventListener("load", positionPuzzle);
 
     // luister ook op latere formaatmutaties (andere image gekozen)
     const ro = new ResizeObserver(() => positionPuzzle());
     try { ro.observe(imgEl); } catch (_) {}
-
 
     // laden zodra mogelijk
     const kickoff = () => loadPuzzle().catch(err => console.error(err));
@@ -187,7 +182,7 @@
 
   window.addEventListener('DOMContentLoaded', () => {
     AddPuzzle.init({
-      imgEl: document.getElementById('logo-img'),    // kies een element dat zichtbaar en >~80px hoog is
+      imgEl: document.getElementById('PuzzleDock'),    // kies een element dat zichtbaar en >~80px hoog is
       send: (msg) => console.log('send', msg),
       puzzleUrl: '/puzzle-buttons2.html',
       heightRatio: 1,
