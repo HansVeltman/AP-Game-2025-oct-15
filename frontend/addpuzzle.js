@@ -187,15 +187,12 @@
 
   window.addEventListener('DOMContentLoaded', () => {
     AddPuzzle.init({
-      imgEl: document.getElementById('PuzzleDock'),    // kies een element dat zichtbaar en >~80px hoog is
+      imgEl: document.getElementById('logo-img'),    // kies een element dat zichtbaar en >~80px hoog is
       send: (msg) => console.log('send', msg),
       puzzleUrl: '/puzzle-buttons2.html',
       heightRatio: 1,
       onClick: (key, msgType) => console.log('klik', key, msgType),
     });
   });
-
-
-
 
 })(this);
