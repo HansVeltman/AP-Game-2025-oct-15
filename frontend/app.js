@@ -23,18 +23,18 @@
       ? 'ws://localhost:8765/'
       : `wss://${PROD_WS_HOST}/`; // trailing slash zodat upgrade op "/" plaatsvindt
 
+  // ====== WEBSOCKET AANMAKEN  met log-listeners
   const ws = new WebSocket(WS_URL);
   ws.binaryType = "arraybuffer";
-
-  //  ===== LISTENERS ===============
-
-  ws.addEventListener("open",  () => { if (statusEl) statusEl.textContent = "WS open";     log("🎉 Verbonden met backend"); });
+  ws.addEventListener("open",  () =>  { if (statusEl) statusEl.textContent = "WS open";     log("🎉 Verbonden met backend"); });
   ws.addEventListener("close", (e) => { if (statusEl) statusEl.textContent = "WS gesloten"; log(`🔌 Verbinding gesloten (${e.code})`);   });
   ws.addEventListener("error", (e) => { if (statusEl) statusEl.textContent = "WS fout";     log("⚠️ WebSocket fout"); console.log(e);   });
 
   ws.addEventListener('open', () => {  // ====== init: toon Start.png via WS ======
     drawAssetOnCanvas('Start.png'); // pas tekenen ná open, anders kan je eerste request racen met de handshake
   });
+
+  //========= diverse helperfuncties =====================
 
   const logoEl = document.querySelector(".logo"); // ====== UI: logo click → terug naar start + optioneel bericht naar backend ======
   if (logoEl) {
@@ -220,16 +220,6 @@ async function drawAssetOnCanvas(name) {
   bindClick("run-week",  7,   "Run one week");
   bindClick("run-month", 30,  "Run one month");
   bindClick("run-year",  365, "Run one year");
+  bindClick("Resetsim",  -1,  "Reset simulation");
 
-  // Reset knop (als aanwezig)
-  const resetEl = document.getElementById("Resetsim");
-  if (resetEl) {
-    resetEl.addEventListener("click", (e) => {
-      e.preventDefault();
-      log("🔁 Reset simulation");
-      send({ messagetype: "RUNSIMULATION", numbers: [-1], texts: ["Reset the simulation"] });
-      drawAssetOnCanvas('Start.png');
-    });
-  }
-  
 })();
