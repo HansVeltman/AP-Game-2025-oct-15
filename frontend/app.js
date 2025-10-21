@@ -16,8 +16,7 @@
 
   // ====== WebSocket URL (prod = WSS) ======
   const PROD_WS_HOST = 'api.thealignmentgame.com';      // ← definitief subdomein // Zet voor definitieve productie de host op 'api.thealignmentgame.com'
-  // const PROD_WS_HOST = 'ap-game-2025-oct-15.onrender.com'; // Voor directe Render-test kun je tijdelijk deze gebruiken:
-
+  
   const WS_URL = // NEW
     (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
       ? 'ws://localhost:8765/'
@@ -30,9 +29,6 @@
   ws.addEventListener("close", (e) => { if (statusEl) statusEl.textContent = "WS gesloten"; log(`🔌 Verbinding gesloten (${e.code})`);   });
   ws.addEventListener("error", (e) => { if (statusEl) statusEl.textContent = "WS fout";     log("⚠️ WebSocket fout"); console.log(e);   });
 
-  //ws.addEventListener('open', () => {  // ====== init: toon Start.png via WS ======
-  //  drawAssetOnCanvas('Start.png'); // pas tekenen ná open, anders kan je eerste request racen met de handshake
-  // });
 
   //========= diverse helperfuncties =====================
 
@@ -73,7 +69,6 @@
       console.log('WS asset ontvangen:', msg.name, msg.mime, (msg.data_b64 || '').length, 'bytes(b64)');
     }
 
-
     // jouw eerdere RUNSIMULATION-logica behouden
     if (msg.messagetype === "RUNSIMULATION") {
       const simDayNumber = Array.isArray(msg.numbers) ? (msg.numbers[0] ?? 0) : 0;
@@ -96,23 +91,6 @@
       log(`📩 WS message: ${JSON.stringify(msg).slice(0, 300)}`);
     }
   });
-
-  // ====== demo: ping bij open ======
-  //ws.addEventListener('open', () => {
-  //  ws.send(JSON.stringify({ type: 'ping' }));
-  //  console.log('WS open, nu Start.png via WS ophalen…');
-  //  drawAssetOnCanvas('Start.png');  // <- dit doet de WS-aanvraag
-  //});
-
-  //ws.addEventListener('message', (e) => {
-  //if (typeof e.data === 'string') {
-  //  try {
-    //  const msg = JSON.parse(e.data);
-      //if (msg.type === 'asset') {
-        //console.log('WS asset ontvangen:', msg.name, msg.mime, (msg.data_b64 || '').length, 'bytes(b64)');
-  //    }
-    //} catch {}
-  //}});
 
 
   //  TEKENFUNCTIES EN AFBEELDINGEN OPHALEN ============
@@ -175,9 +153,7 @@ async function drawAssetOnCanvas(name) {
     } 
   }   
 
-
   //  ==== ACTIES: klik op logo of in menu ======
-
   async function setLogoFromWS() {
     try {
       const url = await fetchAssetAsObjectURL('logo.png'); // komt uit backend/assets/logo.png
@@ -198,14 +174,6 @@ async function drawAssetOnCanvas(name) {
     }
   }
 
-  // Na ws.open aanroepen:
-  //ws.addEventListener('open', () => {
- //   console.log('WS open, nu Start.png via WS ophalen…');
-    // drawAssetOnCanvas('Start.png');  // <- zorg dat deze functie bestaat (zie hieronder)
- //   setLogoFromWS();  // moet aparte async method zijn vanwege de await
- //   drawAssetOnCanvas('Start.png');  // <- dit doet de WS-aanvraag
- // });
-
   ws.addEventListener('open', () => {
     if (statusEl) statusEl.textContent = "WS open";
     log("🎉 Verbonden met backend");
@@ -213,8 +181,6 @@ async function drawAssetOnCanvas(name) {
     setLogoFromWS();                             // logo via WS laten zetten
     drawAssetOnCanvas('Start.png');              // startbeeld één keer tekenen
   });
-
-
 
   // ====== Admin knoppen (indien aanwezig in DOM) ======
   function bindClick(id, days, label) {
@@ -232,5 +198,4 @@ async function drawAssetOnCanvas(name) {
   bindClick("run-month", 30,  "Run one month");
   bindClick("run-year",  365, "Run one year");
   bindClick("Resetsim",  -1,  "Reset simulation");
-
 })();
