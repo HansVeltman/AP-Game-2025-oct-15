@@ -3,7 +3,9 @@
   const $ = (sel) => document.querySelector(sel);
   const statusEl = $("#status");
   const logEl = $("#log");
-  const canvas = document.getElementById("TheMainArea");
+//  const logoEl = $("#logo");
+  const canvas = $("#TheMainArea"); 
+  //document.getElementById("TheMainArea");
   const ctx = canvas.getContext("2d");
 
   // Renderer beschikbaar maken voor de hele module
@@ -170,13 +172,13 @@ async function drawAssetOnCanvas(name) {
     } 
   }   
 
+   // Na ws.open aanroepen:
+  ws.addEventListener('open', () => {
+    console.log('WS open, nu Start.png via WS ophalen…');
 
-  //  ==== ACTIES: klik op logo of in menu ======
-
-  async function setLogoFromWS() {
     try {
-      const url = await fetchAssetAsObjectURL('logo.png'); // komt uit backend/assets/logo.png
-
+      const url_logo  = await fetchAssetAsObjectURL('logo.png'); // komt uit backend/assets/logo.png
+      
       // Pak het echte IMG-element, niet de <a>
       const logoEl = document.querySelector('img.logo-img')    // als je variant 1 gebruikte
                     || document.getElementById('logo-img');    // of variant 2
@@ -184,26 +186,15 @@ async function drawAssetOnCanvas(name) {
       if (!logoEl) {
         console.warn('Geen logo <img> element gevonden');
         return;
-      }
 
-      logoEl.src = url;
-      // Maak ’m zichtbaar (even met expliciete styling om CSS te overrulen)
-      //logoEl.style.width = '400px';
-      //logoEl.style.height = 'auto';
-      //logoEl.style.display = 'block';
-      console.log('✅ Logo via WS gezet');
-    } catch (e) {
-      console.error('❌ Logo via WS laden faalde:', e);
+      logoEl.src = url_logo;      
+      console.log('✅ Logo en Start via WS gezet');
+      } 
+    catch (e) {
+      console.error('❌ Logo en Start via WS laden faalde:', e);
     }
-  }
-
-  // Na ws.open aanroepen:
-  ws.addEventListener('open', () => {
-    console.log('WS open, nu Start.png via WS ophalen…');
-    // drawAssetOnCanvas('Start.png');  // <- zorg dat deze functie bestaat (zie hieronder)
-    setLogoFromWS();
-  });
-
+    drawAssetOnCanvas('Start.png');  // <- gaat anders dan het logo
+    }
 
   // ====== Admin knoppen (indien aanwezig in DOM) ======
   function bindClick(id, days, label) {
