@@ -30,9 +30,9 @@
   ws.addEventListener("close", (e) => { if (statusEl) statusEl.textContent = "WS gesloten"; log(`🔌 Verbinding gesloten (${e.code})`);   });
   ws.addEventListener("error", (e) => { if (statusEl) statusEl.textContent = "WS fout";     log("⚠️ WebSocket fout"); console.log(e);   });
 
-  ws.addEventListener('open', () => {  // ====== init: toon Start.png via WS ======
-    drawAssetOnCanvas('Start.png'); // pas tekenen ná open, anders kan je eerste request racen met de handshake
-  });
+  //ws.addEventListener('open', () => {  // ====== init: toon Start.png via WS ======
+  //  drawAssetOnCanvas('Start.png'); // pas tekenen ná open, anders kan je eerste request racen met de handshake
+  // });
 
   //========= diverse helperfuncties =====================
 
@@ -68,6 +68,11 @@
       log("🏓 pong");
       return;
     }
+    
+    if (msg.type === 'asset') {
+      console.log('WS asset ontvangen:', msg.name, msg.mime, (msg.data_b64 || '').length, 'bytes(b64)');
+    }
+
 
     // jouw eerdere RUNSIMULATION-logica behouden
     if (msg.messagetype === "RUNSIMULATION") {
@@ -93,21 +98,21 @@
   });
 
   // ====== demo: ping bij open ======
-  ws.addEventListener('open', () => {
-    ws.send(JSON.stringify({ type: 'ping' }));
-    console.log('WS open, nu Start.png via WS ophalen…');
-    drawAssetOnCanvas('Start.png');  // <- dit doet de WS-aanvraag
-  });
+  //ws.addEventListener('open', () => {
+  //  ws.send(JSON.stringify({ type: 'ping' }));
+  //  console.log('WS open, nu Start.png via WS ophalen…');
+  //  drawAssetOnCanvas('Start.png');  // <- dit doet de WS-aanvraag
+  //});
 
-  ws.addEventListener('message', (e) => {
-  if (typeof e.data === 'string') {
-    try {
-      const msg = JSON.parse(e.data);
-      if (msg.type === 'asset') {
-        console.log('WS asset ontvangen:', msg.name, msg.mime, (msg.data_b64 || '').length, 'bytes(b64)');
-      }
-    } catch {}
-  }});
+  //ws.addEventListener('message', (e) => {
+  //if (typeof e.data === 'string') {
+  //  try {
+    //  const msg = JSON.parse(e.data);
+      //if (msg.type === 'asset') {
+        //console.log('WS asset ontvangen:', msg.name, msg.mime, (msg.data_b64 || '').length, 'bytes(b64)');
+  //    }
+    //} catch {}
+  //}});
 
 
   //  TEKENFUNCTIES EN AFBEELDINGEN OPHALEN ============
@@ -194,12 +199,21 @@ async function drawAssetOnCanvas(name) {
   }
 
   // Na ws.open aanroepen:
-  ws.addEventListener('open', () => {
-    console.log('WS open, nu Start.png via WS ophalen…');
+  //ws.addEventListener('open', () => {
+ //   console.log('WS open, nu Start.png via WS ophalen…');
     // drawAssetOnCanvas('Start.png');  // <- zorg dat deze functie bestaat (zie hieronder)
-    setLogoFromWS();  // moet aparte async method zijn vanwege de await
-    drawAssetOnCanvas('Start.png');  // <- dit doet de WS-aanvraag
+ //   setLogoFromWS();  // moet aparte async method zijn vanwege de await
+ //   drawAssetOnCanvas('Start.png');  // <- dit doet de WS-aanvraag
+ // });
+
+  ws.addEventListener('open', () => {
+    if (statusEl) statusEl.textContent = "WS open";
+    log("🎉 Verbonden met backend");
+    ws.send(JSON.stringify({ type: 'ping' }));   // demo, mag weg als je wilt
+    setLogoFromWS();                             // logo via WS laten zetten
+    drawAssetOnCanvas('Start.png');              // startbeeld één keer tekenen
   });
+
 
 
   // ====== Admin knoppen (indien aanwezig in DOM) ======
