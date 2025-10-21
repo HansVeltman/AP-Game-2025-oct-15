@@ -182,10 +182,6 @@ html, body{
 
 #PuzzleDock.menu { z-index: 1000; pointer-events: auto; }
 
-/* TIJDELIJK */
-#PuzzleDock { outline: 2px solid red; }
-#PuzzleDock .puzzle-wrapper { background: rgba(0,0,255,.07); }
-
 
 /* Responsive */
 @media (max-width: 900px){
