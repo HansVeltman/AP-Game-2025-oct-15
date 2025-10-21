@@ -145,6 +145,46 @@ html, body{
 
 
 
+#PuzzleDock {
+  
+  position: fixed;        /* “rechts op 5% van de rechterkant” */
+  right: 1%;
+  top: 0;                 /* echte top-positie wordt door JS gezet */
+  z-index: 1000;
+  pointer-events: auto;   /* click doorgeven */
+  padding-top: 0 !important; /* jouw parent had 3px */
+}
+
+#PuzzleDock .puzzle-wrapper {
+  position: absolute;
+  right: 0;           /* past bij transform-origin: top right */
+  top: 0;
+  margin: 0;
+  pointer-events: auto;
+  /* géén transform/JS-strings in CSS */
+}
+
+
+/* optioneel: cursor als handje over puzzelstukken */
+#PuzzleDock .puzzle-button { cursor: pointer; }
+
+/* 1) 10px marge aan de linkerkant voor alles onder de header */
+.site-header + * { margin-left: 50px; }
+.site-header + * ~ * { margin-left: 35px; }
+
+/* 2) Achtergrond van PuzzleDock gelijk aan de headerkleur */
+#PuzzleDock {
+  background: var(--header-bg);
+  border-radius: 2px;     /* optioneel, sluit mooi aan bij de stijl */
+  padding: 3px;            /* optioneel, geeft wat lucht binnenin */
+  /* de bestaande position/right/top/z-index/pointer-events blijven gewoon werken */
+}
+
+#PuzzleDock.menu { z-index: 1000; pointer-events: auto; }
+
+/* TIJDELIJK */
+#PuzzleDock { outline: 2px solid red; }
+#PuzzleDock .puzzle-wrapper { background: rgba(0,0,255,.07); }
 
 
 /* Responsive */
