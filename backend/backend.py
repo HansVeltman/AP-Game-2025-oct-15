@@ -66,12 +66,43 @@ async def handle_text_message(text: str) -> str:
         except Exception as e:
             log.exception("asset error")
             return json.dumps({"type": "error", "error": f"asset error: {e}"})
+        
+    # 3) specifieke afhandeling van jouw 'messagetype' protocol
+    mt = msg.get("messagetype")
+    if mt == "RUNSIMULATION":
+        try:
+            from simulate import SimulategameOneDay, ResetSimulation
+            n = 0
+            nums = msg.get("numbers") or []
+            if isinstance(nums, list) and nums:
+                try:
+                    n = int(nums[0])
+                except Exception:
+                    n = 0
 
-    # 3) behoud je bestaande 'messagetype'-flow als echo (voor debugging)
+            if n == -1:
+                total = ResetSimulation()
+                label = "Reset the simulation"
+            else:
+                total = 0
+                for _ in range(max(0, n)):
+                    total = SimulategameOneDay()
+                label = (msg.get("texts") or ["Run"])[0]
+
+            return json.dumps({
+                "messagetype": "RUNSIMULATION",
+                "numbers": [total],
+                "texts": [label]
+            })
+        except Exception as e:
+            log.exception("RUNSIMULATION error")
+            return json.dumps({"type": "error", "error": f"simulation error: {e}"})
+
+    # 4) behoud je bestaande 'messagetype'-flow als echo (voor debugging)
     if "messagetype" in msg:
         return json.dumps({"type": "echo", "data": msg})
 
-    # 4) default echo
+    # 5) default echo
     return json.dumps({"type": "echo", "data": msg})
 
 # ---------- websocket handler ----------
