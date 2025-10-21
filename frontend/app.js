@@ -3,7 +3,7 @@
   const $ = (sel) => document.querySelector(sel);
   const statusEl = $("#status");
   const logEl = $("#log");
-  const canvas = $("TheMainArea");
+  const canvas = document.getElementById("TheMainArea");
   const ctx = canvas.getContext("2d");
 
   // Renderer beschikbaar maken voor de hele module
