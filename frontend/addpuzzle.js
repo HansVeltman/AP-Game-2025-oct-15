@@ -184,4 +184,18 @@
   const AddPuzzle = { init };
   if (typeof module !== "undefined") module.exports = AddPuzzle;
   else global.AddPuzzle = AddPuzzle;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    AddPuzzle.init({
+      imgEl: document.getElementById('PuzzleDock'),    // kies een element dat zichtbaar en >~80px hoog is
+      send: (msg) => console.log('send', msg),
+      puzzleUrl: '/puzzle-buttons2.html',
+      heightRatio: 1,
+      onClick: (key, msgType) => console.log('klik', key, msgType),
+    });
+  });
+
+
+
+
 })(this);
