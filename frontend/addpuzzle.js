@@ -114,7 +114,7 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
     };
 
     function positionPuzzle() {
-      if (!imgEl ) return;
+      if (!imgEl || !wrapper ) return;
 
       const rect = imgEl.getBoundingClientRect();
       
