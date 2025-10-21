@@ -39,8 +39,8 @@ html, body{
 }
 
 .header-left .logo{
-  height: 48px;
-  width: auto;
+  height: auto;
+  width: 400px;
   display: block;
 }
 
