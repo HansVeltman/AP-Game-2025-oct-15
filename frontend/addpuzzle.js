@@ -9,7 +9,8 @@ const BASIS_HEIGHT = 202;
 // laat schaal groter dan 1 toe (verwijder de cap of zet 'm hoog)
 const MIN_SCALE = 0.2;
 const MAX_SCALE = 6
-
+const UI_OFFSET_Y  = 40;   // verticale offset t.o.v. anker (pixels)
+const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
 
   const DEFAULTS = { puzzleUrl: "puzzle-buttons2.html" };
 
