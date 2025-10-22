@@ -1,165 +1,125 @@
 # backend/backend.py
 import asyncio
-import logging
-import os
 import json
-import base64
+import logging
 import mimetypes
+import os
 from pathlib import Path
 from typing import Optional, Tuple, List
 
 import websockets
 from websockets.server import WebSocketServerProtocol
 
+from protocol import MessageType
+from handlers import registry  # side-effect imports register handlers
+from protocol import Message
+
 # ---------- logging ----------
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s | %(message)s",
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s"
 )
-log = logging.getLogger("alignment-backend")
+log = logging.getLogger("backend")
 
 BASE_DIR = Path(__file__).parent
-ASSETS_DIR = BASE_DIR / "assets"  # zet hier je afbeeldingen
+ASSETS_DIR = BASE_DIR / "assets"  # statische afbeeldingen/PNG's
 
-# ---------- helpers ----------
-def read_asset_b64(name: str):
-    """Lees een asset uit backend/assets en geef (base64_string, mime_type) terug."""
-    safe = name.lstrip("/").replace("\\", "/")
-    f = (ASSETS_DIR / safe).resolve()
-    if not str(f).startswith(str(ASSETS_DIR.resolve())):
-        raise FileNotFoundError("forbidden path")
-    data = f.read_bytes()
-    mime, _ = mimetypes.guess_type(f.name)
-    return base64.b64encode(data).decode("ascii"), (mime or "application/octet-stream")
-
-# ---------- message handling ----------
-async def handle_text_message(text: str) -> str:
+# ---------- core dispatcher ----------
+async def handle_text_message(text: str, *, ws: Optional[WebSocketServerProtocol]=None) -> str:
     """
-    Protocol (tekstframes met JSON):
-    - {"type":"ping"} -> {"type":"pong"}
-    - {"type":"asset","name":"Start.png"} ->
-        {"type":"asset","name":"Start.png","mime":"image/png","data_b64":"..."}
-    - {"messagetype": "...", ... } -> echo terug zodat je huidige frontend-debug blijft zien
-    - anders -> {"type":"echo","data":...}
+    Houd deze functie *dun*:
+      a) JSON parsen → messagetype ophalen
+      b) handler opzoeken → aanroepen met payload
+      c) antwoord (Message) serialiseren → terugsturen
     """
-    # 1) probeer JSON
+    # a) JSON parsen
     try:
-        msg = json.loads(text)
+       msg = json.loads(text)
     except json.JSONDecodeError:
-        # geen JSON → simpele echo
-        return json.dumps({"type": "echo", "data": text})
+       return json.dumps({"type": "echo", "data": text})
 
-    # 2) gestandaardiseerde type-afhandeling
-    t = (msg.get("type") or "").lower()
-    if t == "ping":
+    # ping/pong blijft handig
+    if (msg.get("type") or "").lower() == "ping":
         return json.dumps({"type": "pong"})
 
-    if t == "asset":
-        name = msg.get("name")
-        if not name:
-            return json.dumps({"type": "error", "error": "missing name"})
-        try:
-            b64, mime = read_asset_b64(name)
-            return json.dumps({"type": "asset", "name": name, "mime": mime, "data_b64": b64})
-        except FileNotFoundError:
-            return json.dumps({"type": "error", "error": f"asset not found: {name}"})
-        except Exception as e:
-            log.exception("asset error")
-            return json.dumps({"type": "error", "error": f"asset error: {e}"})
-        
-    # 3) specifieke afhandeling van jouw 'messagetype' protocol
-    mt = msg.get("messagetype")
-    if mt == "RUNSIMULATION":
-        try:
-            from simulate import SimulategameOneDay, ResetSimulation
-            n = 0
-            nums = msg.get("numbers") or []
-            if isinstance(nums, list) and nums:
-                try:
-                    n = int(nums[0])
-                except Exception:
-                    n = 0
+    # b) messagetype ophalen
+    mt_raw = msg.get("messagetype")
+    if not mt_raw:
+        return json.dumps({"type": "error", "error": "missing 'messagetype'"})
+    try:
+        mtype = MessageType(mt_raw)
+    except Exception:
+        return json.dumps({"type": "error", "error": f"unknown messagetype: {mt_raw}"})
 
-            if n == -1:
-                total = ResetSimulation()
-                label = "Reset the simulation"
-            else:
-                total = 0
-                for _ in range(max(0, n)):  # underscore _ is conventie voor “weggooi”-variabele
-                    total = SimulategameOneDay()
-                label = (msg.get("texts") or ["Run"])[0]
+    # handler opzoeken
+    handler = registry.get(mtype)
+    if not handler:
+        return json.dumps({"type": "error", "error": f"no handler registered for {mtype.value}"})
 
-            return json.dumps({
-                "messagetype": "RUNSIMULATION",
-                "numbers": [total],
-                "texts": [label]
-            })
-        except Exception as e:
-            log.exception("RUNSIMULATION error")
-            return json.dumps({"type": "error", "error": f"simulation error: {e}"})
+    numbers = msg.get("numbers") or []
+    texts = msg.get("texts") or []
 
+    # c) handler aanroepen + serialiseren
+    try:
+        response: Message = await handler(ws, numbers=numbers, texts=texts, assets_dir=ASSETS_DIR)
+        return json.dumps(response.to_jsonable())
+    except Exception as e:
+        log.exception("handler %s failed", mtype.value)
+        return json.dumps({"type":"error","error": str(e)})
 
-    if mt == "SHOWSTRATEGY":
-        name = "Strategy.png"
-        if not name:
-            return json.dumps({"type": "error", "error": "missing name"})
-        try:
-            b64, mime = read_asset_b64(name)
-            return json.dumps({
-                "messagetype": "SHOWSTRATEGY",
-                "type": "SHOWSTRATEGY", 
-                "name": name, 
-                "mime": mime, 
-                "data_b64": b64})
-        
-        except FileNotFoundError:
-            return json.dumps({ "type": "error", "error": f"asset not found: {name}"})
-        except Exception as e:
-            log.exception("asset error")
-            return json.dumps({"type": "error", "error": f"asset error: {e}"})
-
-
-
-    # 4) behoud je bestaande 'messagetype'-flow als echo (voor debugging)
-    if "messagetype" in msg:
-        return json.dumps({"type": "echo", "data": msg})
-
-    # 5) default echo
-    return json.dumps({"type": "echo", "data": msg})
-
-# ---------- websocket handler ----------
+# ---------- websocket loop ----------
 async def handler(ws: WebSocketServerProtocol):
     log.info("client connected: %s path=%s", ws.remote_address, getattr(ws, "path", ""))
     try:
         async for raw in ws:
-            # Let op: binaire frames niet naar tekst decoderen (nu unsupported → skippen)
             if isinstance(raw, (bytes, bytearray, memoryview)):
-                log.warning("binary frame received (ignored in this build)")
+                # we ondersteunen geen binaire frames in deze build
+                log.warning("binary frame received (ignored)")
                 continue
-
             text = str(raw)
-            log.info("WS recv: %s", (text[:300] + "...") if len(text) > 300 else text)
-            reply = await handle_text_message(text)
-            log.info("WS send: %s", (reply[:300] + "...") if len(reply) > 300 else reply)
+            snippet = (text[:300] + "...") if len(text) > 300 else text
+            log.info("WS recv: %s", snippet)
+            reply = await handle_text_message(text, ws=ws)
+            r_snip = (reply[:300] + "...") if len(reply) > 300 else reply
+            log.info("WS send: %s", r_snip)
             await ws.send(reply)
     except websockets.ConnectionClosed:
         pass
     finally:
         log.info("client disconnected: %s", ws.remote_address)
 
-# ---------- kleine HTTP health endpoint, WS-upgrade op "/" ----------
-def _http_response(status: int, body: bytes, content_type: str = "text/plain; charset=utf-8"):
-    headers = [
+# ---------- kleine HTTP routes (assets + healthz) ----------
+def _http_response(status: int, body: bytes, content_type: str = "text/plain; charset=utf-8",
+                   headers: Optional[List[Tuple[str,str]]] = None):
+    hs = [
         ("Content-Type", content_type),
         ("Content-Length", str(len(body))),
-        ("Cache-Control", "no-cache"),
+        ("Cache-Control", "public, max-age=86400"),
     ]
-    return (status, headers, body)
+    if headers:
+        hs.extend(headers)
+    return (status, hs, body)
 
 async def process_request(path: str, request_headers) -> Optional[Tuple[int, List[Tuple[str, str]], bytes]]:
-    # Alleen healthz via HTTP; laat "/" vrij voor WebSocket-upgrade
+    # health endpoint
     if path == "/healthz":
         return _http_response(200, b"OK")
+
+    # serve static assets under /assets/<filename>
+    if path.startswith("/assets/"):
+        rel = path[len("/assets/"):].lstrip("/")
+        safe = rel.replace("..","").replace("\","/")  # basic path sanitization
+        f = (ASSETS_DIR / safe).resolve()
+        try:
+            if not str(f).startswith(str(ASSETS_DIR.resolve())):
+                return _http_response(403, b"Forbidden")
+            data = f.read_bytes()
+        except FileNotFoundError:
+            return _http_response(404, b"Not Found")
+        mime, _ = mimetypes.guess_type(f.name)
+        return _http_response(200, data, mime or "application/octet-stream")
+
+    # let websockets upgrade handle everything else (usually "/")
     return None
 
 # ---------- main ----------
@@ -170,8 +130,8 @@ async def main():
         handler,
         host,
         port,
-        max_size=20_000_000,           # ~20 MB frames (ruimte ivm base64 overhead)
-        process_request=process_request
+        max_size=20_000_000,
+        process_request=process_request,
     )
     log.info("WS-server listening on ws://%s:%s", host, port)
     await server.wait_closed()
