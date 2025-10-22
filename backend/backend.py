@@ -6,10 +6,14 @@ import json
 import base64
 import mimetypes
 from pathlib import Path
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Union
 
 import websockets
 from websockets.server import WebSocketServerProtocol
+
+# Protocol / Handlers
+from protocol import MessageType, Message
+from handlers import registry  # central registry: MessageType -> async handler
 
 # ---------- logging ----------
 logging.basicConfig(
@@ -19,41 +23,37 @@ logging.basicConfig(
 log = logging.getLogger("alignment-backend")
 
 BASE_DIR = Path(__file__).parent
-ASSETS_DIR = BASE_DIR / "assets"  # zet hier je afbeeldingen
+ASSETS_DIR = BASE_DIR / "assets"  # afbeeldingen voor asset-requests
 
 # ---------- helpers ----------
 def read_asset_b64(name: str):
-    """Lees een asset uit backend/assets en geef (base64_string, mime_type) terug."""
-    safe = name.lstrip("/").replace("\\", "/")
-    f = (ASSETS_DIR / safe).resolve()
-    if not str(f).startswith(str(ASSETS_DIR.resolve())):
+    """Lees een asset uit backend/assets en geef (data_b64, mime) terug."""
+    f = (ASSETS_DIR / name)
+    # sandboxing: geen path traversal
+    if not str(f.resolve()).startswith(str(ASSETS_DIR.resolve())):
         raise FileNotFoundError("forbidden path")
     data = f.read_bytes()
     mime, _ = mimetypes.guess_type(f.name)
     return base64.b64encode(data).decode("ascii"), (mime or "application/octet-stream")
 
 # ---------- message handling ----------
-async def handle_text_message(text: str) -> str:
+async def handle_text_message(text: str, *, ws: Optional[WebSocketServerProtocol]=None) -> str:
+    """DUNNE DISPATCH:
+    a) JSON parsen → messagetype ophalen
+    b) handler opzoeken → aanroepen met payload
+    c) antwoord serialiseren → JSON string terug
+    Overige: ping/asset blijven hier voor eenvoud.
     """
-    Protocol (tekstframes met JSON):
-    - {"type":"ping"} -> {"type":"pong"}
-    - {"type":"asset","name":"Start.png"} ->
-        {"type":"asset","name":"Start.png","mime":"image/png","data_b64":"..."}
-    - {"messagetype": "...", ... } -> echo terug zodat je huidige frontend-debug blijft zien
-    - anders -> {"type":"echo","data":...}
-    """
-    # 1) probeer JSON
+    # 1) JSON parse
     try:
         msg = json.loads(text)
     except json.JSONDecodeError:
-        # geen JSON → simpele echo
-        return json.dumps({"type": "echo", "data": text})
+        return json.dumps({"type": "error", "error": "invalid json"})
 
-    # 2) gestandaardiseerde type-afhandeling
+    # 2) eenvoudige non-game types
     t = (msg.get("type") or "").lower()
     if t == "ping":
         return json.dumps({"type": "pong"})
-
     if t == "asset":
         name = msg.get("name")
         if not name:
@@ -66,83 +66,78 @@ async def handle_text_message(text: str) -> str:
         except Exception as e:
             log.exception("asset error")
             return json.dumps({"type": "error", "error": f"asset error: {e}"})
-        
-    # 3) specifieke afhandeling van jouw 'messagetype' protocol
-    mt = msg.get("messagetype")
-    if mt == "RUNSIMULATION":
-        try:
-            from simulate import SimulategameOneDay, ResetSimulation
-            n = 0
-            nums = msg.get("numbers") or []
-            if isinstance(nums, list) and nums:
-                try:
-                    n = int(nums[0])
-                except Exception:
-                    n = 0
 
-            if n == -1:
-                total = ResetSimulation()
-                label = "Reset the simulation"
-            else:
-                total = 0
-                for _ in range(max(0, n)):  # underscore _ is conventie voor “weggooi”-variabele
-                    total = SimulategameOneDay()
-                label = (msg.get("texts") or ["Run"])[0]
-
-            return json.dumps({
-                "messagetype": "RUNSIMULATION",
-                "numbers": [total],
-                "texts": [label]
-            })
-        except Exception as e:
-            log.exception("RUNSIMULATION error")
-            return json.dumps({"type": "error", "error": f"simulation error: {e}"})
-
-
-    if mt == "SHOWSTRATEGY":
-        name = "Strategy.png"
-        if not name:
-            return json.dumps({"type": "error", "error": "missing name"})
-        try:
-            b64, mime = read_asset_b64(name)
-            return json.dumps({
-                "messagetype": "SHOWSTRATEGY",
-                "type": "SHOWSTRATEGY", 
-                "name": name, 
-                "mime": mime, 
-                "data_b64": b64})
-        
-        except FileNotFoundError:
-            return json.dumps({ "type": "error", "error": f"asset not found: {name}"})
-        except Exception as e:
-            log.exception("asset error")
-            return json.dumps({"type": "error", "error": f"asset error: {e}"})
-
-
-
-    # 4) behoud je bestaande 'messagetype'-flow als echo (voor debugging)
-    if "messagetype" in msg:
-        return json.dumps({"type": "echo", "data": msg})
-
-    # 5) default echo
-    return json.dumps({"type": "echo", "data": msg})
-
-# ---------- websocket handler ----------
-async def handler(ws: WebSocketServerProtocol):
-    log.info("client connected: %s path=%s", ws.remote_address, getattr(ws, "path", ""))
+    # 3) Centrale dispatch voor game messages
+    mt_raw = msg.get("messagetype")
+    if not mt_raw:
+        return json.dumps({"type": "error", "error": "missing messagetype"})
     try:
-        async for raw in ws:
-            # Let op: binaire frames niet naar tekst decoderen (nu unsupported → skippen)
-            if isinstance(raw, (bytes, bytearray, memoryview)):
-                log.warning("binary frame received (ignored in this build)")
+        mt = MessageType(mt_raw)
+    except Exception:
+        return json.dumps({"type": "error", "error": f"unknown messagetype: {mt_raw}"})
+
+    handler = registry.get(mt)
+    if not handler:
+        return json.dumps({"type": "error", "error": f"no handler for messagetype: {mt.value}"})
+
+    # Payload (conventies)
+    numbers = msg.get("numbers") or []
+    texts = msg.get("texts") or []
+
+    # 4) Execute handler with strict error boundary
+    try:
+        result = await handler(ws, numbers=numbers, texts=texts, assets_dir=ASSETS_DIR)
+    except Exception as e:
+        log.exception("handler %s crashed", mt.value)
+        return json.dumps({"type": "error", "error": f"handler error in {mt.value}: {e}"})
+
+    # 5) Serialize (zonder .to_json referentie)
+    if isinstance(result, Message):
+        # Message uit protocol.py heeft to_jsonable()
+        try:
+            return json.dumps(result.to_jsonable())
+        except Exception:
+            # Fallback: serialize dataclass
+            from dataclasses import asdict
+            return json.dumps(asdict(result))
+    elif isinstance(result, dict):
+        # Legacy handlers die al een jsonable dict teruggeven
+        return json.dumps(result)
+    else:
+        return json.dumps({"type": "error", "error": f"invalid handler return for {mt.value}"})
+
+
+
+# ---------- WS server ----------
+async def handler(ws: WebSocketServerProtocol):
+    log.info("client connected: %s", ws.remote_address)
+    try:
+        async for message in ws:
+            if isinstance(message, bytes):
+                # bytes: niet ondersteund
+                await ws.send(json.dumps({"type": "error", "error": "binary frames not supported"}))
                 continue
 
-            text = str(raw)
-            log.info("WS recv: %s", (text[:300] + "...") if len(text) > 300 else text)
-            reply = await handle_text_message(text)
-            log.info("WS send: %s", (reply[:300] + "...") if len(reply) > 300 else reply)
-            await ws.send(reply)
-    except websockets.ConnectionClosed:
+           # log compacte sample (max 300 chars), type-safe
+            if isinstance(message, (bytes, bytearray, memoryview)):
+                # binary frames zijn niet ondersteund; stuur fout en ga door
+                await ws.send(json.dumps({"type": "error", "error": "binary frames not supported"}))
+                continue
+
+            msg_text: str = message  # nu gegarandeerd str voor de type-checker
+            sample = (msg_text[:300] + "…") if len(msg_text) > 300 else msg_text
+            log.info("<- %s", sample)
+
+            resp = await handle_text_message(message, ws=ws)
+
+            # Ook hier loggen we compact
+            rsample = (resp[:300] + "…") if len(resp) > 300 else resp
+            log.info("-> %s", rsample)
+
+            await ws.send(resp)
+    except websockets.ConnectionClosedOK:
+        pass
+    except websockets.ConnectionClosedError:
         pass
     finally:
         log.info("client disconnected: %s", ws.remote_address)
@@ -157,9 +152,9 @@ def _http_response(status: int, body: bytes, content_type: str = "text/plain; ch
     return (status, headers, body)
 
 async def process_request(path: str, request_headers) -> Optional[Tuple[int, List[Tuple[str, str]], bytes]]:
-    # Alleen healthz via HTTP; laat "/" vrij voor WebSocket-upgrade
+    # Alleen /healthz via HTTP; laat "/" vrij voor WS upgrade.
     if path == "/healthz":
-        return _http_response(200, b"OK")
+        return _http_response(200, b"ok\n")
     return None
 
 # ---------- main ----------
@@ -170,8 +165,8 @@ async def main():
         handler,
         host,
         port,
-        max_size=20_000_000,           # ~20 MB frames (ruimte ivm base64 overhead)
-        process_request=process_request
+        max_size=20_000_000,           # ~20 MB
+        process_request=process_request,
     )
     log.info("WS-server listening on ws://%s:%s", host, port)
     await server.wait_closed()
