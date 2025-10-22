@@ -108,7 +108,7 @@ async def process_request(path: str, request_headers) -> Optional[Tuple[int, Lis
     # serve static assets under /assets/<filename>
     if path.startswith("/assets/"):
         rel = path[len("/assets/"):].lstrip("/")
-        safe = rel.replace("..","").replace("\","/")  # basic path sanitization
+        safe = rel.replace("..","").replace("\\","/")  # basic path sanitization
         f = (ASSETS_DIR / safe).resolve()
         try:
             if not str(f).startswith(str(ASSETS_DIR.resolve())):
