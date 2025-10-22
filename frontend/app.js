@@ -83,6 +83,11 @@
       return;
     }
 
+    if (msg.messagetype === "SHOWSTRATEGY") {
+      drawAssetOnCanvas('Strategy.png');
+      return;
+    }
+
     // renderers (als aanwezig) voor je eigen tekenprotocol
     if (renderer) {
       await renderer.render(msg);
@@ -119,9 +124,11 @@
 
   // ====== WS: asset via JSON ophalen → Blob URL → tekenen op canvas ======
   async function fetchAssetAsObjectURL(name) {
+    // Ophalen vanaf backend via ws:
     const req = { type: 'asset', name };
     ws.send(JSON.stringify(req));
     const res = await waitForOnce(d => d.type === 'asset' && d.name === name);
+    // Omzetten naar Blob URL:
     const b64 = res.data_b64;
     const mime = res.mime || 'application/octet-stream';
     const bin = atob(b64);  // base64 → bytes → Blob
