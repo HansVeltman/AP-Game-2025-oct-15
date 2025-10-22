@@ -198,4 +198,19 @@ async function drawAssetOnCanvas(name) {
   bindClick("run-month", 30,  "Run one month");
   bindClick("run-year",  365, "Run one year");
   bindClick("Resetsim",  -1,  "Reset simulation");
+
+  // ===== Puzzelstukkenmenu initialiseren =====
+  // In app.js, nadat ws en send() gedefinieerd zijn:
+  document.addEventListener('DOMContentLoaded', () => {
+    const imgEl = document.getElementById('TheMainArea');
+    AddPuzzle.init({
+      imgEl,
+      puzzleUrl: 'puzzle-buttons2.html',   // of pad dat jij gebruikt
+      heightRatio: 1,
+      send,                                // <-- de echte WebSocket-sender
+      onClick: (key, type) => log(`Puzzle click: ${key} → ${type}`)
+    });
+  });
+
+
 })();

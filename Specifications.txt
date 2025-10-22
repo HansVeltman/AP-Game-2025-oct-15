@@ -52,14 +52,9 @@ SPECIFICATIES WebApplicatie
 - De frontend ontvangt de message SHOWINFORMATION met de tekeninstructies en beeldt deze af op "TheMainArea"
 
 ONTWIKKELOMGEVING
+Bijgaand de code van een webapplicatie
 - De ontwikkelomgeving is Visual Studio Code, version: 1.104.3, OS: Windows_NT x64 10.0.22621
 - GitHub omgeving\project is: HansVeltman \ AP-Game-2025-oct-15
 - Render.com omgeving voor draaien backend is:  HansVeltman\AP-Game-2025-oct-15
 - Vercel.com omgeving voor draaien frontend is: Hans Veltman's projects\AP-Game-2025-oct-15
 - Website: https://www.thealignmentgame.com/
-
-
-
-
-
-

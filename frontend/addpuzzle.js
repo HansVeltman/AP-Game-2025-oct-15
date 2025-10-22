@@ -196,17 +196,6 @@ const GAP_PX       = 12;   // horizontale marge bij uitlijnen (pixels)
   if (typeof module !== "undefined") module.exports = AddPuzzle;
   else global.AddPuzzle = AddPuzzle;
 
-  window.addEventListener('DOMContentLoaded', () => {
-  const imgEl = document.getElementById('TheMainArea'); // <<< canvas als anker
-  if (!imgEl) { console.error('TheMainArea niet gevonden'); return; }
 
-  AddPuzzle.init({
-    imgEl,
-    puzzleUrl: '/puzzle-buttons2.html',
-    heightRatio: 1, // desgewenst bijstellen
-    send: (m)=>console.log('puzzle send', m),
-    onClick: (key, t)=>console.log('Puzzle click:', key, t),
-  });
-});
 
 })(this);
