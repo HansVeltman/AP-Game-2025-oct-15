@@ -100,7 +100,7 @@ async def handle_text_message(text: str) -> str:
 
 
     if mt == "SHOWSTRATEGY":
-        name = "assets/Strategy.png"
+        name = "Strategy.png"
         if not name:
             return json.dumps({"type": "error", "error": "missing name"})
         try:
