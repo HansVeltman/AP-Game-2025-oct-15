@@ -105,9 +105,15 @@ async def handle_text_message(text: str) -> str:
             return json.dumps({"type": "error", "error": "missing name"})
         try:
             b64, mime = read_asset_b64(name)
-            return json.dumps({"type": "SHOWSTRATEGY", "name": name, "mime": mime, "data_b64": b64})
+            return json.dumps({
+                "messagetype": "SHOWSTRATEGY",
+                "type": "SHOWSTRATEGY", 
+                "name": name, 
+                "mime": mime, 
+                "data_b64": b64})
+        
         except FileNotFoundError:
-            return json.dumps({"type": "error", "error": f"asset not found: {name}"})
+            return json.dumps({ "type": "error", "error": f"asset not found: {name}"})
         except Exception as e:
             log.exception("asset error")
             return json.dumps({"type": "error", "error": f"asset error: {e}"})
