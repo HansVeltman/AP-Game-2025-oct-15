@@ -85,7 +85,7 @@ async def handle_text_message(text: str) -> str:
                 label = "Reset the simulation"
             else:
                 total = 0
-                for _ in range(max(0, n)):
+                for _ in range(max(0, n)):  # underscore _ is conventie voor “weggooi”-variabele
                     total = SimulategameOneDay()
                 label = (msg.get("texts") or ["Run"])[0]
 
@@ -97,6 +97,22 @@ async def handle_text_message(text: str) -> str:
         except Exception as e:
             log.exception("RUNSIMULATION error")
             return json.dumps({"type": "error", "error": f"simulation error: {e}"})
+
+
+    if mt == "SHOWSTRATEGY":
+        name = "assets/Strategy.png"
+        if not name:
+            return json.dumps({"type": "error", "error": "missing name"})
+        try:
+            b64, mime = read_asset_b64(name)
+            return json.dumps({"type": "asset", "name": name, "mime": mime, "data_b64": b64})
+        except FileNotFoundError:
+            return json.dumps({"type": "error", "error": f"asset not found: {name}"})
+        except Exception as e:
+            log.exception("asset error")
+            return json.dumps({"type": "error", "error": f"asset error: {e}"})
+
+
 
     # 4) behoud je bestaande 'messagetype'-flow als echo (voor debugging)
     if "messagetype" in msg:
